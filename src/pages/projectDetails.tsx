@@ -7,10 +7,6 @@ import { useParams } from 'react-router';
 import axios from 'axios';
 type Comment = {
   text: string;
-  // add other fields from your API like:
-  // id: number;
-  // user: string;
-  // created_at: string;
 };
 const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL;
 function ProjectDetails() {
@@ -19,6 +15,7 @@ function ProjectDetails() {
 
   const [comment, setComment] = useState('');
   const [comments, setComments] = useState<Comment[]>([]);
+  const [replies, setReplies] = useState([]);
   const handleSubmitComment = async () => {
     if (!comment.trim()) return;
     try {
@@ -53,6 +50,7 @@ function ProjectDetails() {
         console.log('Failed to get comment:', error.message);
       }
     };
+
     getProject();
     getComments();
   }, []);
@@ -141,9 +139,9 @@ function ProjectDetails() {
             {comments.length === 0 ? (
               <p>No comments yet</p>
             ) : (
-              comments.map((c, index) => (
+              comments.map((c) => (
                 <div
-                  key={index}
+                  key={c.id}
                   className="flex gap-3 items-start border-t border-[var(--color-outline-variant)] pt-4"
                 >
                   <img
