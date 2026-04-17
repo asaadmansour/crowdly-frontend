@@ -68,6 +68,7 @@ body {
   background-color: var(--color-background);
   color: var(--color-on-background);
   font-family: var(--font-display);
+}
 
 .headline-md {
   font-size: var(--text-headline-md-size);
@@ -99,7 +100,7 @@ body {
   background: linear-gradient(135deg, var(--color-primary) 0%, #ff7a2f 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  background-clip: texteadline-md-leading);
+  background-clip: texteadline-md-leading;
   font-weight: 600;
 }
 .body-md {
