@@ -1,18 +1,61 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import AuthorRow from '../components/AuthorRow.tsx';
 import ImageSlider from '../components/ImageSlider.tsx';
 import ProjectCard from '../components/ProjectCard.tsx';
 import CreatorToolKit from '../components/CreatorToolKit.tsx';
 import { useParams } from 'react-router';
+import axios from 'axios';
+type Comment = {
+  text: string;
+  // add other fields from your API like:
+  // id: number;
+  // user: string;
+  // created_at: string;
+};
+const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL;
 function ProjectDetails() {
   const params = useParams();
+  const [project, setProject] = useState(null);
+
   const [comment, setComment] = useState('');
-  const [comments, setComments] = useState<string[]>([]);
-  const handleSubmitComment = () => {
-    console.log(comment);
-    setComment('');
-    setComments([...comments, comment]);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const handleSubmitComment = async () => {
+    if (!comment.trim()) return;
+    try {
+      await axios.post(`${BASE_URL}interactions/projects/${params.id}/comments/`, {
+        text: comment,
+      });
+      console.log(comment);
+      setComments([...comments, { text: comment }]);
+      setComment('');
+    } catch (error) {
+      console.log('Failed to post comment:', error.message);
+    }
   };
+  useEffect(() => {
+    const getProject = async () => {
+      try {
+        const projectDB = await axios.get(`${BASE_URL}projects/${params.id}/`);
+        setProject(projectDB.data);
+        console.log(projectDB.data);
+      } catch (error) {
+        console.log('Failed to get project:', error.message);
+      }
+    };
+    const getComments = async () => {
+      try {
+        const commentsDB = await axios.get(
+          `${BASE_URL}interactions/projects/${params.id}/comments/`
+        );
+        console.log(commentsDB.data.comments);
+        setComments(commentsDB.data.comments);
+      } catch (error) {
+        console.log('Failed to get comment:', error.message);
+      }
+    };
+    getProject();
+    getComments();
+  }, []);
 
   const similarProjects = [
     {
@@ -38,42 +81,35 @@ function ProjectDetails() {
     'https://images.unsplash.com/photo-1518531933037-91b2f5f229cc?w=800',
     'https://images.unsplash.com/photo-1476231682828-37e571bc172f?w=800',
   ];
+  if (!project) {
+    return <></>;
+  }
+  const percentage = Math.round((project.total_donated / project.total_target) * 100);
+  const daysLeft = Math.ceil((new Date(project.end_time) - Date.now()) / (1000 * 60 * 60 * 24));
   return (
     <div className="grid grid-cols-3 gap-3 bg-[var(--color-background)] p-5">
       <div className="col-span-2">
         <ImageSlider images={images}></ImageSlider>
         <br></br>
         <span className="bg-[rgba(255,86,0,0.1)] text-[var(--color-primary)] border border-[var(--color-primary)] rounded-md label-md px-2 py-1">
-          Ecology & Ethics
+          {project.category.name}
         </span>
-        <h1 className="display-lg mt-2">Project Alpha: Reclaiming the Urban Canopy</h1>
+        <h1 className="display-lg mt-2">{project.title}</h1>
         <p className="body-md">
           Lorem, ipsum dolor sit amet consectetur adipisicing elit. Debitis, similique, quod aut
           impedit adipisci, perspiciatis voluptatibus asperiores minima vitae facere fugiat?
           Distinctio qui aut tenetur, aspernatur perferendis labore voluptatibus rem ipsam.
-          Accusamus reprehenderit, dolores deserunt quidem quis ex voluptatum aliquid totam eveniet
-          itaque fugiat facilis at. Nobis itaque, totam repellendus, vitae atque labore deleniti
-          accusamus cupiditate quasi pariatur rem. Voluptates, inventore facere dolorem numquam quod
-          dolore, sint provident alias explicabo minima placeat magnam ipsam, cum quidem. Eaque
-          nulla nisi consequatur eveniet modi totam aut neque, voluptatum reprehenderit vel dicta,
-          illo alias debitis molestias suscipit aliquam? Ad iusto eos natus eligendi.
         </p>
         <AuthorRow
           image="https://i.pravatar.cc/150?img=11"
-          name="Marcus Thorne"
-          date="Oct 24, 2024"
-          daysLeft={12}
+          name={project.owner}
+          date={new Date(project.created_at).toLocaleDateString()}
+          daysLeft={daysLeft}
         />
         <br></br>
         <h3 className="headline-md">About this campaign</h3>
         <div className="bg-[var(--color-primary)] w-32 h-1 mt-2"></div>
-        <p className="body-md mt-4 text-[var(--color-text-secondary)]">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Eos fuga itaque adipisci commodi
-          ipsa facere ratione cum, ea maiores temporibus architecto quibusdam officiis. Et ab iste
-          culpa ipsa expedita voluptatum perspiciatis, nihil eaque nulla magni sint, sit nemo ipsam,
-          deleniti molestiae! Vero necessitatibus repudiandae, vitae quaerat autem hic cupiditate
-          saepe!
-        </p>
+        <p className="body-md mt-4 text-[var(--color-text-secondary)]">{project.details}</p>
         <br></br>
         <h3 className="headline-md mt-8">Community Feed</h3>
         <div className="mt-4 border border-[var(--color-outline-variant)] rounded-lg p-4">
@@ -102,21 +138,25 @@ function ProjectDetails() {
           </div>
 
           <div className="mt-6 flex flex-col gap-4">
-            {comments.map((c, index) => (
-              <div
-                key={index}
-                className="flex gap-3 items-start border-t border-[var(--color-outline-variant)] pt-4"
-              >
-                <img
-                  src="https://i.pravatar.cc/150?img=22"
-                  className="w-9 h-9 rounded-full object-cover"
-                />
-                <div>
-                  <span className="font-semibold text-sm">Jane Doe</span>
-                  <p className="body-md text-[var(--color-text-secondary)] mt-1">{c}</p>
+            {comments.length === 0 ? (
+              <p>No comments yet</p>
+            ) : (
+              comments.map((c, index) => (
+                <div
+                  key={index}
+                  className="flex gap-3 items-start border-t border-[var(--color-outline-variant)] pt-4"
+                >
+                  <img
+                    src="https://i.pravatar.cc/150?img=22"
+                    className="w-9 h-9 rounded-full object-cover"
+                  />
+                  <div>
+                    <span className="font-semibold text-sm">{c.author.username}</span>
+                    <p className="body-md text-[var(--color-text-secondary)] mt-1">{c.text}</p>
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
         <br></br>
@@ -131,21 +171,23 @@ function ProjectDetails() {
       </div>
       <div className="sticky top-6">
         <div className="card p-6">
-          <h2 className="text-3xl font-bold text-[var(--color-on-background)]">$12,450</h2>
+          <h2 className="text-3xl font-bold text-[var(--color-on-background)]">
+            ${project.total_donated}
+          </h2>
           <p className="label-md text-[var(--color-text-secondary)] mt-1">
-            pledged of $150,000 target
+            pledged of {project.total_target} target
           </p>
 
           <div className="w-full bg-[var(--color-surface-container)] rounded-full h-2 mt-3">
             <div
               className="bg-[var(--color-primary)] h-2 rounded-full"
-              style={{ width: '45%' }}
+              style={{ width: `${percentage}%` }}
             ></div>
           </div>
 
           <div className="grid grid-cols-2 mt-3">
             <div>
-              <p className="font-bold text-sm">38%</p>
+              <p className="font-bold text-sm">{percentage}%</p>
               <p className="label-md text-[var(--color-text-secondary)]">Complete</p>
             </div>
             <div className="text-right">
