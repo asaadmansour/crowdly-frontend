@@ -1,4 +1,4 @@
-import api from "./api";
+import api from './api';
 
 export interface LoginPayload {
   email: string;
@@ -34,21 +34,21 @@ export interface RefreshTokenPayload {
 }
 
 export async function registerUser(payload: RegisterPayload) {
-  const response = await api.post("/auth/register/", payload);
+  const response = await api.post('/auth/register/', payload);
   return response.data;
 }
 
 export async function loginUser(payload: LoginPayload) {
-  const response = await api.post("/auth/login/", payload);
+  const response = await api.post('/auth/login/', payload);
   return response.data;
 }
 
 export async function logoutUser(payload: RefreshTokenPayload) {
-  const response = await api.post("/auth/logout/", payload);
+  const response = await api.post('/auth/logout/', payload);
   return response.data;
 }
 
 export async function refreshToken(payload: RefreshTokenPayload) {
-  const response = await api.post("/auth/token/refresh/", payload);
+  const response = await api.post('/auth/token/refresh/', payload);
   return response.data;
 }

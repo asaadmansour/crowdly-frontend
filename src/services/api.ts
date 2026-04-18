@@ -2,10 +2,11 @@ import axios, { type AxiosInstance } from 'axios';
 
 const api: AxiosInstance = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
+  withCredentials: true, // send cookies with every request
 });
 
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
+  const token = sessionStorage.getItem('access_token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
   }
@@ -19,17 +20,18 @@ api.interceptors.response.use(
     if (error.response?.status === 401 && !original._retry) {
       original._retry = true;
       try {
-        const refresh = localStorage.getItem('refresh_token');
         const { data } = await axios.post(
           `${import.meta.env.VITE_API_BASE_URL}/auth/token/refresh/`,
-          { refresh }
-        );  
-        localStorage.setItem('access_token', data.access);
+          {},
+          {
+            withCredentials: true,
+          }
+        );
+        sessionStorage.setItem('access_token', data.access);
         original.headers.Authorization = `Bearer ${data.access}`;
         return api(original);
       } catch {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
+        sessionStorage.removeItem('access_token');
         window.location.href = '/login';
       }
     }
