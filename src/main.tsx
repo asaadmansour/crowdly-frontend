@@ -5,6 +5,7 @@ import { AuthProvider } from './providers/AuthProvider';
 import './index.css';
 import App from './App.tsx';
 createRoot(document.getElementById('root')!).render(
+  //add redux here
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
