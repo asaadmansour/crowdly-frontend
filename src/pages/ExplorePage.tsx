@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { getProjects, getCategories } from '../services/projects';
-import api from '../services/api';
+import api from '../utils/api';
 import ProjectCard from '../components/ProjectCard';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
