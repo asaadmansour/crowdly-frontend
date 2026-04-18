@@ -1,16 +1,17 @@
-import { Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
-import Layout from "./components/Layout";
-import Home from "./pages/Home";
-import ExplorePage from "./pages/ExplorePage";
-import ProfilePage from "./pages/ProfilePage";
-import Categories from "./pages/Categories";
-import Contact from "./pages/Contact";
-import About from "./pages/About";
-import PrivacyTerms from "./pages/PrivacyTerms";
-import NotFound from "./pages/NotFound";
-import SuspenseSpinner from "./components/SuspenseSpinner";
-import ProtectedRoute from "./components/ProtectedRoute";
+import { Suspense } from 'react';
+import { Routes, Route } from 'react-router-dom';
+import Layout from './components/Layout';
+import Home from './pages/Home';
+import ExplorePage from './pages/ExplorePage';
+import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
+import Categories from './pages/Categories';
+import Contact from './pages/Contact';
+import About from './pages/About';
+import PrivacyTerms from './pages/PrivacyTerms';
+import NotFound from './pages/NotFound';
+import SuspenseSpinner from './components/SuspenseSpinner';
+import ProtectedRoute from './components/ProtectedRoute';
 
 export default function App() {
   return (
@@ -24,7 +25,22 @@ export default function App() {
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy&terms" element={<PrivacyTerms />} />
-          <Route path="/profile" element={<ProtectedRoute><ProfilePage /></ProtectedRoute>} />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/profile/edit"
+            element={
+              <ProtectedRoute>
+                <EditProfilePage />
+              </ProtectedRoute>
+            }
+          />
         </Route>
 
         {/* Standalone pages without nav + footer */}
