@@ -19,6 +19,15 @@ import PrivacyTerms from "./pages/PrivacyTerms";
 import NotFound from "./pages/NotFound";
 import Home from './pages/Home.tsx';
 
+// Admin Imports
+import AdminLayout from './components/admin/AdminLayout';
+import AdminDashboard from './pages/admin/AdminDashboard';
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminCategories from './pages/admin/AdminCategories';
+import AdminProjectReports from './pages/admin/AdminProjectReports';
+import AdminCommentReports from './pages/admin/AdminCommentReports';
+import AdminReplyReports from './pages/admin/AdminReplyReports';
+
 export default function App() {
   return (
     <>
@@ -78,6 +87,16 @@ export default function App() {
           />
         </Route>
         
+        {/* Admin Routes */}
+        <Route path="/admin/login" element={<AdminLogin />} />
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<AdminDashboard />} />
+          <Route path="categories" element={<AdminCategories />} />
+          <Route path="reports/projects" element={<AdminProjectReports />} />
+          <Route path="reports/comments" element={<AdminCommentReports />} />
+          <Route path="reports/replies" element={<AdminReplyReports />} />
+        </Route>
+
         <Route path="*" element={<NotFound />} />
         <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
         <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
