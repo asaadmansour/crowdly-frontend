@@ -112,11 +112,19 @@ function CreateProject() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center p-4 md:p-8 pt-20">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-[4px] overflow-y-auto">
       <div
-        className="w-full max-w-6xl grid grid-cols-1 lg:grid-cols-5 bg-[var(--color-surface-highest)] rounded-[20px] overflow-hidden"
+        className="relative w-full max-w-6xl grid grid-cols-1 lg:grid-cols-5 bg-[var(--color-surface-highest)] rounded-[20px] overflow-hidden my-auto"
         style={{ boxShadow: 'var(--shadow-float)' }}
       >
+        <button 
+          onClick={() => navigate(-1)}
+          className="absolute top-4 right-4 z-[60] text-gray-400 hover:text-gray-800 bg-white/50 hover:bg-white rounded-full p-2 transition-all shadow-sm"
+          title="Close Dialog"
+          type="button"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
         {/* Left Side: Visual / Info Panel */}
         <div className="lg:col-span-2 relative bg-gradient-to-br from-[var(--color-surface-container)] to-[var(--color-surface-low)] p-10 flex flex-col justify-between overflow-hidden">
           {/* Decorative Background Elements */}

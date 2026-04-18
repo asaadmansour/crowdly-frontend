@@ -1,5 +1,4 @@
 import axios from 'axios';
-
 const api = axios.create({
   baseURL: import.meta.env.VITE_BASE_BACKEND_URL,
   withCredentials: true,
@@ -11,7 +10,7 @@ api.interceptors.request.use(
 
     if (token) {
       config.headers = config.headers || {};
-      config.headers.Authorization = ` Bearer ${token}`;
+      config.headers.Authorization = `Bearer ${token}`;
     }
 
     return config;
@@ -37,11 +36,12 @@ api.interceptors.response.use(
         const newAccessToken = res.data.access;
 
         localStorage.setItem('access_token', newAccessToken);
+        
+        // Dynamically import store and actions to prevent circular dependencies
         const { default: store } = await import('../store/store.js');
         const { addToken } = await import('../store/slices/authSlicer.js');
         
-        const currentUser = store.getState().auth.user;
-        store.dispatch(addToken({ token: newAccessToken, user: currentUser }));
+        store.dispatch(addToken({ token: newAccessToken, user: null }));
 
         originalRequest.headers = originalRequest.headers || {};
         originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
@@ -49,8 +49,11 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         localStorage.removeItem('access_token');
+        
+        // Dynamically import store and actions to prevent circular dependencies
         const { default: store } = await import('../store/store.js');
         const { removeToken } = await import('../store/slices/authSlicer.js');
+        
         store.dispatch(removeToken());
         window.location.href = '/login';
         return Promise.reject(refreshError);

@@ -7,7 +7,7 @@ export default function GoogleButton() {
     <button
       type="button"
       onClick={googleLogin}
-      className="w-full bg-[#151515] hover:bg-black transition-colors text-white border-0 py-4 px-6 rounded-[3px] text-[12px] font-bold tracking-[0.15em] flex justify-center items-center cursor-pointer mb-8"
+      className="w-full bg-[#151515] hover:bg-black transition-colors text-white border-0 py-3 px-6 rounded-[3px] text-[12px] font-bold tracking-[0.15em] flex justify-center items-center cursor-pointer mb-8"
     >
       <svg viewBox="0 0 24 24" fill="currentColor" className="w-[18px] h-[18px] mr-3">
         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

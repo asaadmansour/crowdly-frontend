@@ -129,8 +129,16 @@ function ImageUploadProject() {
   };
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] flex items-center justify-center p-4 md:p-8 pt-20">
-      <div className="w-full max-w-5xl bg-white rounded-[20px] overflow-hidden flex flex-col md:flex-row shadow-[0_20px_80px_rgba(17,17,17,0.06)]">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-[4px] overflow-y-auto">
+      <div className="relative w-full max-w-5xl bg-[var(--color-surface-highest)] rounded-[20px] overflow-hidden flex flex-col md:flex-row shadow-[0_20px_80px_rgba(17,17,17,0.06)] my-auto">
+        <button 
+          onClick={() => navigate(-1)}
+          className="absolute top-4 right-4 z-[60] text-gray-400 hover:text-gray-800 bg-black/5 hover:bg-black/10 rounded-full p-2 transition-all shadow-sm"
+          title="Close Dialog"
+          type="button"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
         {/* Left Side: Visual / Info Panel */}
         <div className="md:w-5/12 bg-gradient-to-br from-[var(--color-surface-container)] to-[var(--color-surface-low)] p-10 flex flex-col justify-center relative overflow-hidden hidden md:flex">
           {/* Decorative Elements */}
