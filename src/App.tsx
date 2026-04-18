@@ -5,6 +5,7 @@ import Explore from "./pages/Explore";
 import Categories from "./pages/Categories";
 import CategoryProjects from "./pages/CategoryProjects";
 import SearchResults from "./pages/SearchResults";
+import ProjectDetails from "./pages/ProjectDetails";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import PrivacyTerms from "./pages/PrivacyTerms";
@@ -20,6 +21,7 @@ export default function App() {
           <Route path="/categories" element={<Categories />} />
           <Route path="/categories/:id/projects" element={<CategoryProjects />} />
           <Route path="/search" element={<SearchResults />} />
+          <Route path="/projects/:id" element={<ProjectDetails />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy&terms" element={<PrivacyTerms/>}/>

@@ -1,66 +1,101 @@
-import { Link } from 'react-router-dom';
-import { useCategories } from '../hooks/useCategories';
+import { Link } from "react-router-dom";
+import { useCategories, type Category } from "../hooks/useCategories";
+import { getCategoryVisual } from "../constants/categoryVisuals";
 
 export default function Categories() {
   const { categories, loadingCategories } = useCategories();
 
   if (loadingCategories) {
     return (
-      <div className="min-h-screen bg-[#f7f3ed] p-6">
-        <div className="mx-auto max-w-6xl">
-          <div className="mb-8">
-            <div className="mb-3 h-10 w-52 animate-pulse rounded bg-neutral-200" />
-            <div className="h-4 w-40 animate-pulse rounded bg-neutral-200" />
+      <main className="min-h-screen bg-[#f6f3ee] px-6 py-12">
+        <div className="mx-auto max-w-7xl">
+          <div className="mb-10">
+            <div className="mb-3 h-4 w-40 animate-pulse rounded bg-neutral-300" />
+            <div className="mb-3 h-12 w-80 animate-pulse rounded bg-neutral-300" />
+            <div className="h-5 w-72 animate-pulse rounded bg-neutral-200" />
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            {Array.from({ length: 4 }).map((_, index) => (
-              <div key={index} className="overflow-hidden rounded-3xl bg-white shadow-sm">
-                <div className="h-64 animate-pulse bg-neutral-200" />
-                <div className="p-5">
-                  <div className="mb-3 h-6 w-24 animate-pulse rounded bg-neutral-200" />
-                  <div className="mb-2 h-4 w-full animate-pulse rounded bg-neutral-200" />
-                  <div className="mb-2 h-4 w-4/5 animate-pulse rounded bg-neutral-200" />
-                </div>
-              </div>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {Array.from({ length: 8 }).map((_, index) => (
+              <div
+                key={index}
+                className="h-[300px] animate-pulse rounded-md bg-neutral-200"
+              />
             ))}
           </div>
         </div>
-      </div>
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f3ed] px-6 py-10">
-      <div className="mx-auto max-w-6xl">
+    <main className="min-h-screen bg-[#f6f3ee] px-6 py-12">
+      <div className="mx-auto max-w-7xl">
         <div className="mb-10">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.2em] text-orange-600">
+          <h1 className="text-[52px] font-bold leading-none tracking-tight text-black">
             Browse Categories
-          </p>
-          <h1 className="text-4xl font-bold tracking-tight text-black md:text-5xl">Categories</h1>
-          <p className="mt-3 text-sm text-gray-600 md:text-base">
-            Choose a category to explore its projects.
+          </h1>
+
+          <p className="mt-3 text-[17px] text-gray-500">
+            Find a cause that speaks to you
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {categories.map((category) => (
-            <Link
-              key={category.id}
-              to={`/categories/${category.id}/projects`}
-              className="group overflow-hidden rounded-3xl bg-white shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl"
-            >
-              <div className="h-64 bg-gradient-to-br from-orange-100 via-orange-50 to-neutral-200" />
-              <div className="p-5">
-                <h2 className="mb-2 text-2xl font-bold text-black">{category.name}</h2>
-                <p className="text-sm leading-6 text-gray-600">
-                  {category.description || 'Explore projects in this category.'}
-                </p>
-              </div>
-            </Link>
-          ))}
+        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {categories.map((category: Category) => {
+            const visual = getCategoryVisual(category.name || "");
+            const countText =
+              typeof category.projects_count === "number"
+                ? `${category.projects_count} PROJECTS`
+                : visual.count;
+
+            return (
+              <Link
+                key={category.id}
+                to={`/categories/${category.id}/projects`}
+                className="group block"
+              >
+                <div className="relative h-[300px] overflow-hidden rounded-md bg-neutral-300 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
+                  {category.image ? (
+                    <img
+                      src={category.image}
+                      alt={category.name}
+                      className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
+                    />
+                  ) : (
+                    <div className="absolute inset-0 bg-neutral-300" />
+                  )}
+
+                  <div
+                    className={`absolute inset-0 bg-gradient-to-b ${visual.gradient}`}
+                  />
+
+                  <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+                    <h2 className="text-[22px] font-bold leading-tight transition duration-300 group-hover:translate-y-[-2px]">
+                      {category.name}
+                    </h2>
+
+                    <p className="mt-1 text-[11px] uppercase tracking-wide text-white/85">
+                      {countText}
+                    </p>
+                  </div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
+
+        <section className="mt-16 rounded-sm bg-[#ebe7e1] px-6 py-10 text-center">
+          <p className="mb-3 text-[10px] uppercase tracking-[0.35em] text-[#a78d73]">
+            Curated Weekly
+          </p>
+
+          <h3 className="mx-auto max-w-3xl text-2xl font-medium italic leading-snug text-[#2d2926] md:text-4xl">
+            “Impact is not about the scale of the contribution, but the
+            intentionality of the choice.”
+          </h3>
+        </section>
       </div>
-    </div>
+    </main>
   );
 }
