@@ -5,6 +5,7 @@ export type Category = {
   name: string;
   description?: string;
   image?: string;
+  image_url?: string;
   projects_count?: number;
 };
 

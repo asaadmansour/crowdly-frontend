@@ -57,32 +57,33 @@ export default function Navbar() {
 
         {isAuthenticated ? (
           <div className="flex items-center space-x-4">
-            <div className="relative">
-              {!showSearch ? (
-                <button
-                  type="button"
-                  onClick={() => setShowSearch(true)}
-                  className="p-2 rounded-full hover:bg-black/5 hover:text-primary transition-colors duration-300"
-                  aria-label="Open search"
-                >
-                  <Search className="cursor-pointer" size={20} />
-                </button>
-              ) : (
+            <div className="relative flex items-center">
+              <button
+                type="button"
+                onClick={() => setShowSearch(true)}
+                className="p-2 rounded-full hover:bg-black/5 hover:text-primary transition-colors duration-300"
+                aria-label="Open search"
+              >
+                <Search className="cursor-pointer" size={20} />
+              </button>
+
+              {showSearch && (
                 <form
                   onSubmit={handleSearch}
-                  className="flex items-center overflow-hidden rounded-full border-2 bg-white"
+                  className="absolute right-0 flex items-center overflow-hidden rounded-full border border-[#eee] bg-white shadow-md z-50"
+                  style={{ minWidth: '220px' }}
                 >
                   <input
                     type="text"
                     placeholder="Search projects..."
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
-                    className="w-40 px-3 py-2 text-sm outline-none"
+                    className="flex-1 px-3 py-2 text-sm outline-none bg-transparent"
                     autoFocus
                   />
                   <button
                     type="submit"
-                    className="px-3 py-2 text-sm font-medium hover:text-primary-hover transition-colors"
+                    className="px-3 py-2 text-sm font-medium hover:text-primary transition-colors"
                   >
                     Go
                   </button>
@@ -92,7 +93,7 @@ export default function Navbar() {
                       setShowSearch(false);
                       setSearch("");
                     }}
-                    className="px-3 py-2 text-sm text-gray-500 hover:text-black transition-colors"
+                    className="px-3 py-2 text-sm text-gray-400 hover:text-black transition-colors"
                   >
                     ✕
                   </button>

@@ -56,9 +56,9 @@ export default function Categories() {
                 className="group block"
               >
                 <div className="relative h-[300px] overflow-hidden rounded-md bg-neutral-300 shadow-sm transition duration-300 hover:-translate-y-1 hover:shadow-xl">
-                  {category.image ? (
+                  {category.image_url ? (
                     <img
-                      src={category.image}
+                      src={category.image_url}
                       alt={category.name}
                       className="absolute inset-0 h-full w-full object-cover transition duration-500 group-hover:scale-105"
                     />
