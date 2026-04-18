@@ -13,6 +13,9 @@ import GuestRoute from './components/GuestRoute.tsx';
 import Layout from './components/Layout';
 import Explore from './pages/Explore';
 import Categories from './pages/Categories';
+import CategoryProjects from "./pages/CategoryProjects";
+import SearchResults from "./pages/SearchResults";
+import ProjectDetails from "./pages/ProjectDetails";
 import Contact from './pages/Contact';
 import About from './pages/About';
 import PrivacyTerms from './pages/PrivacyTerms';
@@ -57,6 +60,30 @@ export default function App() {
             element={
               <PrivateRoute>
                 <Categories />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/categories/:id/projects"
+            element={
+              <PrivateRoute>
+                <CategoryProjects />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/search"
+            element={
+              <PrivateRoute>
+                <SearchResults />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/projects/:id"
+            element={
+              <PrivateRoute>
+                <ProjectDetails />
               </PrivateRoute>
             }
           />
