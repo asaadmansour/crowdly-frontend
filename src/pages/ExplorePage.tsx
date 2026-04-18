@@ -63,9 +63,14 @@ export default function ExplorePage() {
   }, []);
 
   // ── Fetch projects whenever any filter changes ─────────────────────────────
+  // Track the current page in a ref so fetchProjects can read it without it
+  // appearing in useCallback deps (which would cause a double-call on page change).
+  const pageRef = { current: page };
+  pageRef.current = page;
+
   const fetchProjects = useCallback(
     async (resetPage = true) => {
-      const currentPage = resetPage ? 1 : page;
+      const currentPage = resetPage ? 1 : pageRef.current;
       if (resetPage) {
         setIsLoading(true);
         setPage(1);
@@ -80,8 +85,12 @@ export default function ExplorePage() {
           status: status || undefined,
           ordering,
           page: currentPage,
+          // Goal range — only send when the slider is below the max
+          ...(maxGoal < 100000 ? { max_goal: maxGoal } : {}),
+          // Rating — only send when a minimum star rating is selected
+          ...(minRating > 0 ? { min_rating: minRating } : {}),
         };
-        // Remove undefined keys
+        // Strip undefined keys before sending
         Object.keys(params).forEach((k) => params[k] === undefined && delete params[k]);
 
         const res = await getProjects(params);
@@ -102,13 +111,15 @@ export default function ExplorePage() {
         setIsLoadingMore(false);
       }
     },
-    [debouncedSearch, selectedCategories, status, ordering, page]
+    // page is intentionally excluded — read via ref to prevent re-render loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [debouncedSearch, selectedCategories, status, maxGoal, minRating, ordering]
   );
 
-  // Trigger fresh fetch on filter changes
+  // Re-fetch whenever any filter changes (fetchProjects encodes all filter deps)
   useEffect(() => {
     fetchProjects(true);
-  }, [debouncedSearch, selectedCategories, status, maxGoal, minRating, ordering]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [fetchProjects]);
 
   // ── Load more ──────────────────────────────────────────────────────────────
   const loadMore = () => fetchProjects(false);
@@ -296,7 +307,7 @@ export default function ExplorePage() {
         {/* Title & subtitle */}
         <h1 className="explore-title">Explore Projects</h1>
         <p className="explore-subtitle">
-          Showing {totalCount} campaign{totalCount !== 1 ? 's' : ''} matching your curation
+          Showing {shown} campaign{totalCount !== 1 ? 's' : ''} matching your curation
         </p>
 
         {/* Sort + pills row */}
@@ -372,7 +383,7 @@ export default function ExplorePage() {
         </div>
 
         {/* Load more */}
-        {!isLoading && nextPage && (
+        {!isLoading && nextPage && shown < totalCount && (
           <div className="load-more-section">
             <button
               id="explore-load-more"
@@ -380,7 +391,7 @@ export default function ExplorePage() {
               onClick={loadMore}
               disabled={isLoadingMore}
             >
-              {isLoadingMore ? 'Loading…' : `Load 12 more · ${remaining} remaining`}
+              {isLoadingMore ? 'Loading…' : `Load ${Math.min(12, remaining)} more · ${remaining} remaining`}
             </button>
             <p className="load-more-meta">
               SHOWING {shown} OF {totalCount} TOTAL PROJECTS

@@ -20,7 +20,28 @@
   width: 270px;
   position: sticky;
   top: 88px; /* clear fixed navbar */
+  /* Limit height so the card never overflows the viewport */
+  max-height: calc(100vh - 108px);
+  overflow-y: auto;
+  border-radius: 12px;
+  /* Custom thin scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-border-secondary, #dedbd6) transparent;
 }
+
+.explore-sidebar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.explore-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.explore-sidebar::-webkit-scrollbar-thumb {
+  background: var(--color-border-secondary, #dedbd6);
+  border-radius: 2px;
+}
+
 
 .sidebar-card {
   background: #fff;

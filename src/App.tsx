@@ -17,7 +17,7 @@ export default function App() {
       {/* Wrapped elements that need a nav + footer */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
-        <Route path="/projects" element={<ExplorePage />} />
+        <Route path="/explore" element={<ExplorePage />} />
         <Route path="/categories" element={<Categories />} />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
