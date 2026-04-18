@@ -1,39 +1,103 @@
-import { Link, NavLink } from 'react-router-dom';
-import type { NavLinkRenderProps } from 'react-router-dom';
-import { User } from 'lucide-react';
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import type { NavLinkRenderProps } from "react-router-dom";
+import { useState } from "react";
+import { Search, User } from "lucide-react";
 
 export default function Navbar() {
   const loggedInUser = true;
 
+  const [search, setSearch] = useState("");
+  const [showSearch, setShowSearch] = useState(false);
+  const navigate = useNavigate();
+
+  const handleSearch = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!search.trim()) return;
+
+    navigate(`/search?q=${encodeURIComponent(search)}`);
+    setShowSearch(false);
+  };
+
   const navLinkClasses = ({ isActive }: NavLinkRenderProps): string =>
     `relative py-1 duration-300 hover:text-primary-hover transition-all ` +
     (isActive
-      ? 'text-primary border-b-2 border-primary'
-      : 'text-on-surface border-b-2 border-transparent');
+      ? "text-primary border-b-2 border-primary"
+      : "text-on-surface border-b-2 border-transparent");
 
   return (
     /* slide down on page load */
     <nav className="w-full sticky top-0 z-50 animate-slide-down">
       <div className="w-[90%] mx-auto flex items-center justify-between py-4">
-
         <Link to="/" className="headline-md font-bold">
           Crowdly
         </Link>
 
         <div className="flex space-x-6 uppercase font-medium">
-          <NavLink to="/explore"    className={navLinkClasses}>Explore</NavLink>
-          <NavLink to="/categories" className={navLinkClasses}>Categories</NavLink>
-          <NavLink to="/about"      className={navLinkClasses}>About</NavLink>
-          <NavLink to="/contact"    className={navLinkClasses}>Contact</NavLink>
+          <NavLink to="/explore" className={navLinkClasses}>
+            Explore
+          </NavLink>
+          <NavLink to="/categories" className={navLinkClasses}>
+            Categories
+          </NavLink>
+          <NavLink to="/about" className={navLinkClasses}>
+            About
+          </NavLink>
+          <NavLink to="/contact" className={navLinkClasses}>
+            Contact
+          </NavLink>
         </div>
 
         {loggedInUser ? (
-          <div className="flex justify-between items-center space-x-4">
+          <div className="flex items-center space-x-4">
+            <div className="relative">
+              {!showSearch ? (
+                <button
+                  type="button"
+                  onClick={() => setShowSearch(true)}
+                  className="border-2 p-2 rounded-full hover:text-primary-hover duration-300 transition-colors"
+                  aria-label="Open search"
+                >
+                  <Search size={18} />
+                </button>
+              ) : (
+                <form
+                  onSubmit={handleSearch}
+                  className="flex items-center overflow-hidden rounded-full border-2 bg-white"
+                >
+                  <input
+                    type="text"
+                    placeholder="Search projects..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    className="w-40 px-3 py-2 text-sm outline-none"
+                    autoFocus
+                  />
+                  <button
+                    type="submit"
+                    className="px-3 py-2 text-sm font-medium hover:text-primary-hover transition-colors"
+                  >
+                    Go
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowSearch(false);
+                      setSearch("");
+                    }}
+                    className="px-3 py-2 text-sm text-gray-500 hover:text-black transition-colors"
+                  >
+                    ✕
+                  </button>
+                </form>
+              )}
+            </div>
+
             <Link to="/">
               <button type="button" className="btn-primary">
                 Start A Campaign
               </button>
             </Link>
+
             <Link to="/profile" className="border-2 p-2 rounded-full">
               <User className="cursor-pointer hover:text-primary-hover duration-300" />
             </Link>

@@ -3,6 +3,8 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import Categories from "./pages/Categories";
+import CategoryProjects from "./pages/CategoryProjects";
+import SearchResults from "./pages/SearchResults";
 import Contact from "./pages/Contact";
 import About from "./pages/About";
 import PrivacyTerms from "./pages/PrivacyTerms";
@@ -16,6 +18,8 @@ export default function App() {
           <Route path="/" element={<Home />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/categories" element={<Categories />} />
+          <Route path="/categories/:id/projects" element={<CategoryProjects />} />
+          <Route path="/search" element={<SearchResults />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/privacy&terms" element={<PrivacyTerms/>}/>
