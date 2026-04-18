@@ -1,6 +1,5 @@
 import { Routes, Route } from 'react-router-dom';
 import Layout from './components/Layout';
-import ProtectedRoute from './components/ProtectedRoute';
 import Home from './pages/Home';
 import ExplorePage from './pages/ExplorePage';
 import ProfilePage from './pages/ProfilePage';
@@ -109,17 +108,17 @@ export default function App() {
           <Route
             path="/profile"
             element={
-              <ProtectedRoute>
+              <PrivateRoute>
                 <ProfilePage />
-              </ProtectedRoute>
+              </PrivateRoute>
             }
           />
           <Route
             path="/profile/edit"
             element={
-              <ProtectedRoute>
+              <PrivateRoute>
                 <EditProfilePage />
-              </ProtectedRoute>
+              </PrivateRoute>
             }
           />
         </Route>

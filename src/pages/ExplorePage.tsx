@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { getProjects, getCategories } from '../services/projects';
 import ProjectCard from '../components/ProjectCard';
 import LoadingSkeleton from '../components/LoadingSkeleton';
@@ -62,67 +62,57 @@ export default function ExplorePage() {
       .catch(() => setCategories([]));
   }, []);
 
-  // ── Fetch projects whenever any filter changes ─────────────────────────────
-  // Track the current page in a ref so fetchProjects can read it without it
-  // appearing in useCallback deps (which would cause a double-call on page change).
-  const pageRef = { current: page };
-  pageRef.current = page;
+  // ── Helper: build current filter params ────────────────────────────────────
+  const buildFilterParams = () => ({
+    ...(debouncedSearch             ? { search: debouncedSearch }                  : {}),
+    ...(selectedCategories[0]       ? { category: selectedCategories[0] }          : {}),
+    ...(status                      ? { status }                                   : {}),
+    ...(maxGoal < 100000            ? { max_goal: maxGoal }                        : {}),
+    ...(minRating > 0               ? { min_rating: minRating }                    : {}),
+    ordering,
+  });
 
-  const fetchProjects = useCallback(
-    async (resetPage = true) => {
-      const currentPage = resetPage ? 1 : pageRef.current;
-      if (resetPage) {
-        setIsLoading(true);
-        setPage(1);
-      } else {
-        setIsLoadingMore(true);
-      }
+  // ── Effect 1: Filter changes → reset to page 1, replace results ────────────
+  useEffect(() => {
+    let cancelled = false;
+    setIsLoading(true);
+    setPage(1);
 
-      try {
-        const params: Record<string, unknown> = {
-          search: debouncedSearch || undefined,
-          category: selectedCategories[0] ?? undefined,
-          status: status || undefined,
-          ordering,
-          page: currentPage,
-          // Goal range — only send when the slider is below the max
-          ...(maxGoal < 100000 ? { max_goal: maxGoal } : {}),
-          // Rating — only send when a minimum star rating is selected
-          ...(minRating > 0 ? { min_rating: minRating } : {}),
-        };
-        // Strip undefined keys before sending
-        Object.keys(params).forEach((k) => params[k] === undefined && delete params[k]);
-
-        const res = await getProjects(params);
+    getProjects({ ...buildFilterParams(), page: 1 })
+      .then((res) => {
+        if (cancelled) return;
         const data = res.data;
+        setProjects(data.results ?? []);
         setTotalCount(data.count ?? 0);
         setNextPage(data.next ?? null);
+      })
+      .catch(() => { if (!cancelled) setProjects([]); })
+      .finally(() => { if (!cancelled) setIsLoading(false); });
 
-        if (resetPage) {
-          setProjects(data.results ?? []);
-        } else {
-          setProjects((prev) => [...prev, ...(data.results ?? [])]);
-          setPage((p) => p + 1);
-        }
-      } catch {
-        if (resetPage) setProjects([]);
-      } finally {
-        setIsLoading(false);
-        setIsLoadingMore(false);
-      }
-    },
-    // page is intentionally excluded — read via ref to prevent re-render loop
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [debouncedSearch, selectedCategories, status, maxGoal, minRating, ordering]
-  );
+    return () => { cancelled = true; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch, selectedCategories, status, maxGoal, minRating, ordering]);
 
-  // Re-fetch whenever any filter changes (fetchProjects encodes all filter deps)
-  useEffect(() => {
-    fetchProjects(true);
-  }, [fetchProjects]);
+  // ── Load more: plain async handler, reads page state directly ──────────────
+  // Event handlers always see the latest state — no refs or useCallback needed.
+  const loadMore = async () => {
+    if (isLoadingMore) return;
+    const nextPageNum = page + 1;
+    setIsLoadingMore(true);
+    try {
+      const res = await getProjects({ ...buildFilterParams(), page: nextPageNum });
+      const data = res.data;
+      setProjects((prev) => [...prev, ...(data.results ?? [])]);
+      setTotalCount(data.count ?? 0);
+      setNextPage(data.next ?? null);
+      setPage(nextPageNum);
+    } catch {
+      // silently ignore — existing results stay on screen
+    } finally {
+      setIsLoadingMore(false);
+    }
+  };
 
-  // ── Load more ──────────────────────────────────────────────────────────────
-  const loadMore = () => fetchProjects(false);
 
   // ── Clear filters ──────────────────────────────────────────────────────────
   const clearFilters = () => {
@@ -391,7 +381,9 @@ export default function ExplorePage() {
               onClick={loadMore}
               disabled={isLoadingMore}
             >
-              {isLoadingMore ? 'Loading…' : `Load ${Math.min(12, remaining)} more · ${remaining} remaining`}
+              {isLoadingMore
+                ? 'Loading…'
+                : `Load ${Math.min(12, remaining)} more · ${remaining} remaining`}
             </button>
             <p className="load-more-meta">
               SHOWING {shown} OF {totalCount} TOTAL PROJECTS
