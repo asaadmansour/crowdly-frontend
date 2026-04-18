@@ -1,4 +1,4 @@
-import api from './api';
+import api from '../utils/api';
 
 // ── Request Payload Types ──────────────────────────────────
 export interface UpdateUserPayload {
@@ -80,7 +80,7 @@ export async function updateUserById(id: number, payload: UpdateUserPayload) {
 
 // ── Current-user project & donation history ───────────────────────────────
 export async function getMyProjects() {
-  const response = await api.get('/projects/me/');
+  const response = await api.get('/users/me/projects/');
   return response.data;
 }
 

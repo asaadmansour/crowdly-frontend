@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/UseAuth';
+import { useSelector, useDispatch } from 'react-redux';
+import { removeToken } from '../store/slices/authSlicer';
 import { getMyProjects, getMyDonations, deleteMyAccount } from '../services/users';
 import { cancelProject } from '../services/projects';
 import ProjectCard from '../components/ProjectCard';
@@ -11,7 +12,8 @@ import './ProfilePage.css';
 
 export default function ProfilePage() {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user } = useSelector((state: any) => state.auth);
+  const dispatch = useDispatch();
 
   // ── Tab + data state ────────────────────────────────────────────────────────
   const [activeTab, setActiveTab] = useState<'projects' | 'donations'>('projects');
@@ -31,8 +33,8 @@ export default function ProfilePage() {
   const fetchMyProjects = async () => {
     setIsLoadingProjects(true);
     try {
-      const data = await getMyProjects();
-      setMyProjects(data?.results ?? data ?? []);
+      const payload = data?.results ?? data;
+      setMyProjects(Array.isArray(payload) ? payload : []);
     } catch {
       setMyProjects([]);
     } finally {
@@ -44,8 +46,8 @@ export default function ProfilePage() {
   const fetchMyDonations = async () => {
     setIsLoadingDonations(true);
     try {
-      const data = await getMyDonations();
-      setMyDonations(data?.results ?? data ?? []);
+      const payload = data?.results ?? data;
+      setMyDonations(Array.isArray(payload) ? payload : []);
     } catch {
       setMyDonations([]);
     } finally {
@@ -63,7 +65,7 @@ export default function ProfilePage() {
     setIsDeleting(true);
     try {
       await deleteMyAccount();
-      await logout();
+      dispatch(removeToken());
       navigate('/');
     } catch {
       setIsDeleting(false);

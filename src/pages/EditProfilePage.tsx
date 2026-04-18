@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/UseAuth';
+import { useSelector } from 'react-redux';
 import { patchMyProfile } from '../services/users';
 import type { UpdateUserPayload } from '../services/users';
 import './EditProfilePage.css';
@@ -8,7 +8,7 @@ import './EditProfilePage.css';
 // ── Validation helpers ────────────────────────────────────────────────────
 const EG_PHONE_RE = /^(\+20|0)?1[0125][0-9]{8}$/;
 
-function validate(data: typeof EMPTY_FORM, picture: File | null): Record<string, string> {
+function validate(data: typeof EMPTY_FORM): Record<string, string> {
   const errs: Record<string, string> = {};
 
   if (!data.first_name.trim()) errs.first_name = 'First name is required.';
@@ -27,7 +27,6 @@ function validate(data: typeof EMPTY_FORM, picture: File | null): Record<string,
     if (chosen >= new Date()) errs.birthdate = 'Birthdate must be in the past.';
   }
 
-  void picture; // picture itself doesn't need validation beyond type (accepted by <input>)
   return errs;
 }
 
@@ -43,13 +42,10 @@ const EMPTY_FORM = {
 
 export default function EditProfilePage() {
   const navigate   = useNavigate();
-  const { user }   = useAuth();
-  const fileRef    = useRef<HTMLInputElement>(null);
+  const { user }   = useSelector((state: any) => state.auth);
 
   // ── Form state ────────────────────────────────────────────────────────────
   const [formData, setFormData]           = useState({ ...EMPTY_FORM });
-  const [profilePicture, setProfilePicture] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl]       = useState<string | null>(null);
   const [errors, setErrors]               = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting]   = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
@@ -59,8 +55,8 @@ export default function EditProfilePage() {
   useEffect(() => {
     if (!user) return;
     setFormData({
-      first_name:       user.username?.split(' ')[0] ?? '',
-      last_name:        user.username?.split(' ').slice(1).join(' ') ?? '',
+      first_name:       user.first_name ?? '',
+      last_name:        user.last_name ?? '',
       email:            user.email ?? '',
       mobile_phone:     user.phone ?? '',
       birthdate:        user.birth_date ?? '',
@@ -69,21 +65,7 @@ export default function EditProfilePage() {
     });
   }, [user]);
 
-  // ── Cleanup object URL ────────────────────────────────────────────────────
-  useEffect(() => {
-    return () => {
-      if (previewUrl) URL.revokeObjectURL(previewUrl);
-    };
-  }, [previewUrl]);
 
-  // ── Image change ──────────────────────────────────────────────────────────
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    setProfilePicture(file);
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(URL.createObjectURL(file));
-  };
 
   // ── Field change ──────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -98,8 +80,8 @@ export default function EditProfilePage() {
     const payload: Partial<UpdateUserPayload> = {};
     // Map UserProfileResponse fields → payload fields
     const orig = {
-      first_name:       user?.username?.split(' ')[0] ?? '',
-      last_name:        user?.username?.split(' ').slice(1).join(' ') ?? '',
+      first_name:       user?.first_name ?? '',
+      last_name:        user?.last_name ?? '',
       mobile_phone:     user?.phone ?? '',
       birthdate:        user?.birth_date ?? '',
       country:          user?.country ?? '',
@@ -111,8 +93,7 @@ export default function EditProfilePage() {
     if (formData.mobile_phone     !== orig.mobile_phone)      payload.mobile_phone     = formData.mobile_phone;
     if (formData.birthdate        !== orig.birthdate)         payload.birthdate        = formData.birthdate;
     if (formData.country          !== orig.country)           payload.country          = formData.country;
-    if (formData.facebook_profile !== orig.facebook_profile)  payload.facebook_profile = formData.facebook_profile;
-    if (profilePicture)                                        payload.profile_picture  = profilePicture;
+
 
     return payload;
   };
@@ -123,7 +104,7 @@ export default function EditProfilePage() {
     setSuccessMessage('');
     setErrorMessage('');
 
-    const fieldErrors = validate(formData, profilePicture);
+    const fieldErrors = validate(formData);
     if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return;
@@ -138,16 +119,7 @@ export default function EditProfilePage() {
 
     setIsSubmitting(true);
     try {
-      // If picture is included send as FormData (multipart)
-      if (payload.profile_picture) {
-        const fd = new FormData();
-        Object.entries(payload).forEach(([k, v]) => {
-          if (v !== undefined) fd.append(k, v as string | Blob);
-        });
-        await patchMyProfile(payload); // service already wraps with api.patch
-      } else {
-        await patchMyProfile(payload);
-      }
+      await patchMyProfile(payload);
       setSuccessMessage('Profile updated successfully');
       setTimeout(() => navigate('/profile'), 1500);
     } catch {
@@ -157,9 +129,7 @@ export default function EditProfilePage() {
     }
   };
 
-  // ── Avatar display ────────────────────────────────────────────────────────
-  const avatarSrc  = previewUrl ?? user?.profile_picture ?? null;
-  const initials   = (user?.username ?? '?')[0].toUpperCase();
+  const initials   = (user?.username ?? user?.first_name ?? '?')[0].toUpperCase();
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
@@ -180,30 +150,29 @@ export default function EditProfilePage() {
           <h1 className="edit-profile-title">Edit Profile</h1>
         </div>
 
-        {/* ── Avatar ── */}
+        {/* ── Avatar Initials ── */}
         <div className="edit-avatar-section">
           <div className="edit-avatar-circle">
-            {avatarSrc ? (
-              <img src={avatarSrc} alt="Profile" className="edit-avatar-img" />
-            ) : (
-              <span className="edit-avatar-initials">{initials}</span>
-            )}
+            <span className="edit-avatar-initials">{initials}</span>
           </div>
-          <label htmlFor="profile-picture-input" className="change-photo-label">
-            Change photo
-          </label>
-          <input
-            id="profile-picture-input"
-            ref={fileRef}
-            type="file"
-            accept="image/*"
-            className="photo-file-input"
-            onChange={handleImageChange}
-          />
         </div>
 
         {/* ── Form ── */}
         <form className="edit-profile-form" onSubmit={handleSubmit} noValidate>
+
+          {/* Username — disabled */}
+          <div className="form-field">
+            <label htmlFor="edit-username" className="field-label">Username</label>
+            <input
+              id="edit-username"
+              name="username"
+              type="text"
+              className="field-input field-input--disabled"
+              value={user?.username ?? ''}
+              disabled
+            />
+            <p className="field-hint">Username cannot be changed</p>
+          </div>
 
           {/* First name */}
           <div className="form-field">
@@ -241,20 +210,7 @@ export default function EditProfilePage() {
             {errors.last_name && <p className="field-error">{errors.last_name}</p>}
           </div>
 
-          {/* Email — disabled */}
-          <div className="form-field">
-            <label htmlFor="edit-email" className="field-label">Email</label>
-            <input
-              id="edit-email"
-              name="email"
-              type="email"
-              className="field-input field-input--disabled"
-              value={formData.email}
-              disabled
-              autoComplete="email"
-            />
-            <p className="field-hint">Email cannot be changed</p>
-          </div>
+
 
           {/* Mobile phone */}
           <div className="form-field">
@@ -300,20 +256,7 @@ export default function EditProfilePage() {
             />
           </div>
 
-          {/* Facebook profile */}
-          <div className="form-field">
-            <label htmlFor="edit-facebook" className="field-label">Facebook profile</label>
-            <input
-              id="edit-facebook"
-              name="facebook_profile"
-              type="url"
-              className={`field-input ${errors.facebook_profile ? 'field-input--error' : ''}`}
-              value={formData.facebook_profile}
-              onChange={handleChange}
-              placeholder="https://facebook.com/yourprofile"
-            />
-            {errors.facebook_profile && <p className="field-error">{errors.facebook_profile}</p>}
-          </div>
+
 
           {/* Feedback messages */}
           {successMessage && <p className="form-success">{successMessage}</p>}
