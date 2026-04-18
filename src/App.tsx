@@ -1,13 +1,15 @@
-import { Routes, Route, Navigate  } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import { Routes, Route } from 'react-router-dom';
+
 import LoginPage from './pages/login-page/LoginPage.tsx';
-import HomePage from './pages/home-page/HomePage.tsx';
 import GlobalSpinner from './components/GlobalSpinner.tsx';
 import { Toaster } from 'react-hot-toast';
 import RegisterPage from './pages/register-page/RegisterPage.tsx';
 import EmailPage from './pages/email-page/EmailPage.tsx';
+import ResetPasswordPage from './pages/reset-password-page/ResetPasswordPage.tsx';
+import SendResetPasswordPage from './pages/send-reset-password-page/SendResetPasswordPage.tsx';
 import VerifyEmailToken from './pages/verfiy-email-token/VerfiyEmailToken.tsx';
 import PrivateRoute from './components/PrivateRoute.tsx';
+import GuestRoute from './components/GuestRoute.tsx';
 import Layout from "./components/Layout";
 import Explore from "./pages/Explore";
 import Categories from "./pages/Categories";
@@ -18,7 +20,6 @@ import NotFound from "./pages/NotFound";
 import Home from './pages/Home.tsx';
 
 export default function App() {
-  const { isAuthenticated } = useSelector((state: any) => state.auth);
   return (
     <>
       <GlobalSpinner />
@@ -34,16 +35,7 @@ export default function App() {
               </PrivateRoute>
             }
           />
-        <Route
-          path="/login"
-          element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" replace />}
-        />
-        <Route
-          path="/register"
-          element={!isAuthenticated ? <RegisterPage /> : <Navigate to="/" replace />}
-        />
-        <Route path="/email-verification" element={<EmailPage />} />
-        <Route path="/verify" element={<VerifyEmailToken />} />
+       
           <Route
             path="/explore"
             element={
@@ -87,10 +79,12 @@ export default function App() {
         </Route>
         
         <Route path="*" element={<NotFound />} />
-        {/* Element that won't need a nav + footer */}
-
-        {/* The one working on this please add the following pages:
-        Login, Sign-up, Forgot Password, etc.. */}
+        <Route path="/login" element={<GuestRoute><LoginPage /></GuestRoute>} />
+        <Route path="/register" element={<GuestRoute><RegisterPage /></GuestRoute>} />
+        <Route path="/email-verification" element={<GuestRoute><EmailPage /></GuestRoute>} />
+        <Route path="/send-reset-password" element={<GuestRoute><SendResetPasswordPage /></GuestRoute>} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/verify" element={<GuestRoute><VerifyEmailToken /></GuestRoute>} />
       </Routes>
     </>
   );

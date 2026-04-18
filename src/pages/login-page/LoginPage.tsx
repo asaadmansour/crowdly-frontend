@@ -61,12 +61,12 @@ export default function LoginPage() {
           </div>
           <LoginForm handleLogin={handleLogin} />
           <div className="flex justify-end mb-8">
-            <a
-              href="#"
+            <Link
+              to="/send-reset-password"
               className="text-[10px] font-bold tracking-[0.1em] text-[#666] uppercase no-underline border-b border-[#aaa] pb-[1px] transition-colors hover:text-[#333] hover:border-[#333]"
             >
               FORGOT YOUR PASSWORD?
-            </a>
+            </Link>
           </div>
 
           <div className="text-center text-[15px] text-[#666]">

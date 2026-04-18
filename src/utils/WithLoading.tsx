@@ -7,7 +7,12 @@ const withLoading = (input: any) => {
     store.dispatch(showLoading());
     return input
       .catch((err: any) => {
-        toast.error(err.message || 'An error occurred');
+        const backendMessage = err.response?.data;
+        const errorMessage =
+          typeof backendMessage === 'string'
+            ? backendMessage
+            : backendMessage?.message || err.message || 'An error occurred';
+        toast.error(errorMessage);
         throw err;
       })
       .finally(() => {
@@ -21,7 +26,9 @@ const withLoading = (input: any) => {
       try {
         return await input(dispatch, getState);
       } catch (err: any) {
-        toast.error(err.message || 'An error occurred');
+        const backendMessage = err.response?.data;
+        const errorMessage = typeof backendMessage === 'string' ? backendMessage : err.message || 'An error occurred';
+        toast.error(errorMessage);
         throw err;
       } finally {
         dispatch(hideLoading());
