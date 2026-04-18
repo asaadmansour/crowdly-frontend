@@ -43,13 +43,13 @@ export default function Navbar() {
                 Start A Campaign
               </button>
             </Link>
-            <Link to="/profile" className="border-2 p-2 rounded-full">
-              <User className="cursor-pointer hover:text-primary-hover duration-300" />
+            <Link to="/profile" className="p-2 rounded-full hover:bg-black/5 hover:text-primary transition-colors duration-300">
+              <User className="cursor-pointer" />
             </Link>
             <button
               type="button"
               onClick={handleLogout}
-              className="border-2 p-2 rounded-full hover:text-primary-hover hover:border-primary-hover duration-300 transition-all"
+              className="p-2 rounded-full hover:bg-black/5 hover:text-primary transition-colors duration-300"
               title="Logout"
             >
               <LogOut className="cursor-pointer" size={20} />
