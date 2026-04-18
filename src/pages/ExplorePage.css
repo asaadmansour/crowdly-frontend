@@ -306,28 +306,85 @@
   cursor: pointer;
 }
 
-/* ── Rating list ──────────────────────────────────────────────────────────── */
-.rating-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
+/* ── Rating star picker ────────────────────────────────────────────────────── */
+.rating-picker {
   display: flex;
   flex-direction: column;
   gap: 8px;
 }
 
-.rating-item {
+.rating-stars-row {
   display: flex;
-  align-items: center;
+  gap: 4px;
 }
 
-.rating-label {
+.star-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 26px;
+  line-height: 1;
+  cursor: pointer;
+  color: var(--color-border-secondary, #dedbd6);
+  transition: color 140ms ease, transform 140ms ease;
+  font-family: inherit;
+  /* keep the touch target comfortable */
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
-  gap: 9px;
+  justify-content: center;
+  border-radius: 6px;
+}
+
+/* Hovered or selected fill */
+.star-btn--filled {
+  color: #f5a623;
+}
+
+/* Locked-in selection gets a subtle scale-up */
+.star-btn--selected {
+  color: #D85A30;
+  transform: scale(1.15);
+}
+
+.star-btn:focus-visible {
+  outline: 2px solid #D85A30;
+  outline-offset: 2px;
+}
+
+/* Contextual hint below the stars */
+.rating-picker-hint {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary, #6b6b6b);
+  margin: 0;
+  min-height: 1.4em; /* prevent layout jump */
+  transition: color 140ms ease;
+}
+
+/* "Clear rating" chip */
+.rating-all-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  border: 1px solid rgba(216, 90, 48, 0.3);
+  border-radius: 100px;
+  background: rgba(216, 90, 48, 0.06);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: #D85A30;
   cursor: pointer;
-  font-size: 13px;
-  color: var(--color-text-primary, #5d1f1f);
+  font-family: inherit;
+  transition: background 150ms ease, border-color 150ms ease;
+  align-self: flex-start;
+}
+
+.rating-all-chip:hover {
+  background: rgba(216, 90, 48, 0.14);
+  border-color: rgba(216, 90, 48, 0.5);
 }
 
 /* ── Clear filters link ───────────────────────────────────────────────────── */
