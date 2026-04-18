@@ -17,10 +17,7 @@ const registerSchema = Yup.object({
     .matches(/^[0-9+() -]+$/, 'Please enter a valid phone number')
     .min(8, 'Phone number is too short')
     .max(20, 'Phone number cannot exceed 20 characters')
-    .optional(),
-  birth_date: Yup.date()
-    .max(new Date(), 'Birth date cannot be in the future')
-    .optional(),
+    .required('Phone number is required'),
   country: Yup.string()
     .max(100, 'Country name cannot exceed 100 characters')
     .optional(),
@@ -30,7 +27,7 @@ const registerSchema = Yup.object({
   password: Yup.string()
     .min(8, 'Password must be at least 8 characters long')
     .required('Password is required'),
-  confirm_password: Yup.string()
+  password2: Yup.string()
     .oneOf([Yup.ref('password')], 'Passwords must match')
     .required('Please confirm your password'),
 });
