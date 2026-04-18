@@ -12,8 +12,8 @@ export default function AdminDashboard() {
   return (
     <div className="animate-fade-in-up">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-[var(--color-primary)]">Admin Dashboard</h1>
-        <p className="text-[var(--color-text-secondary)] mt-1">Welcome back. Select a module to manage.</p>
+        <h1 className="text-4xl font-bold tracking-tight text-[#111]">Dashboard</h1>
+        <p className="font-[var(--font-serif)] italic text-[#666] mt-2 text-lg">Welcome back. Select a module to manage.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -21,12 +21,12 @@ export default function AdminDashboard() {
           <Link
             key={stat.name}
             to={stat.path}
-            className="card p-6 flex flex-col items-center justify-center gap-4 hover:shadow-lg transition-shadow border border-[var(--color-border-secondary)] hover:border-[var(--color-primary)]"
+            className="bg-white p-6 flex flex-col items-center justify-center gap-4 rounded-xl hover:shadow-xl transition-all duration-300 border border-[#eee] hover:border-[#ff5021] group"
           >
-            <div className="p-4 bg-[var(--color-surface-container)] rounded-full">
+            <div className="p-4 bg-[#faf9f6] rounded-full group-hover:scale-110 transition-transform duration-300">
               {stat.icon}
             </div>
-            <h3 className="font-semibold text-lg text-[var(--color-text-primary)]">{stat.name}</h3>
+            <h3 className="font-semibold text-lg text-[#333]">{stat.name}</h3>
           </Link>
         ))}
       </div>

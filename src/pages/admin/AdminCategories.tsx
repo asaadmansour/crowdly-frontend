@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import adminApi from '../../utils/adminApi';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 
@@ -24,7 +24,7 @@ export default function AdminCategories() {
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const { data } = await adminApi.get(`/admin-panel/categories/?page=1&page_size=100&search=${search}`);
+      const { data } = await api.get(`/admin-panel/categories/?page=1&page_size=100&search=${search}`);
       // Handle paginated response typically { results: [...] } or direct array
       setCategories(data.results || data);
     } catch {
@@ -68,12 +68,12 @@ export default function AdminCategories() {
 
     try {
       if (editId) {
-        await adminApi.put(`/admin-panel/categories/${editId}/`, payload, {
+        await api.put(`/admin-panel/categories/${editId}/`, payload, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         toast.success('Category updated successfully');
       } else {
-        await adminApi.post('/admin-panel/categories/', payload, {
+        await api.post('/admin-panel/categories/', payload, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         toast.success('Category created successfully');
@@ -89,7 +89,7 @@ export default function AdminCategories() {
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure you want to delete this category?')) return;
     try {
-      await adminApi.delete(`/admin-panel/categories/${id}/`);
+      await api.delete(`/admin-panel/categories/${id}/`);
       toast.success('Category deleted');
       fetchCategories();
     } catch {

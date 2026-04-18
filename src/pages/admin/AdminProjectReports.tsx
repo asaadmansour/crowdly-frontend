@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import adminApi from '../../utils/adminApi';
+import api from '../../utils/api';
 import toast from 'react-hot-toast';
 import { CheckCircle, XCircle } from 'lucide-react';
 
@@ -24,7 +24,7 @@ export default function AdminProjectReports() {
   const fetchReports = async () => {
     setLoading(true);
     try {
-      const { data } = await adminApi.get('/admin-panel/reports/projects/?page=1&status=pending');
+      const { data } = await api.get('/admin-panel/reports/projects/?page=1&status=pending');
       setReports(data.results || data);
     } catch {
       toast.error('Failed to load project reports');
@@ -49,7 +49,7 @@ export default function AdminProjectReports() {
     e.preventDefault();
     if (!selectedReport) return;
     try {
-      await adminApi.patch(`/admin-panel/reports/projects/${selectedReport.id}/`, {
+      await api.patch(`/admin-panel/reports/projects/${selectedReport.id}/`, {
         action: actionType,
         admin_notes: adminNotes,
       });

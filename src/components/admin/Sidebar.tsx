@@ -1,14 +1,17 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, FolderTree, FileWarning, MessageSquareWarning, ReplyAll, LogOut } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { useDispatch } from 'react-redux';
+import { removeToken } from '../../store/slices/authSlicer';
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
-    localStorage.removeItem('admin_token');
-    toast.success('Admin logged out');
-    navigate('/admin/login');
+    dispatch(removeToken());
+    toast.success('Logged out successfully');
+    navigate('/login');
   };
 
   const navItems = [
@@ -20,7 +23,7 @@ export default function Sidebar() {
   ];
 
   return (
-    <aside className="w-64 bg-[var(--color-surface-highest)] min-h-screen flex flex-col border-r border-[#dedbd6]">
+    <aside className="w-64 bg-white min-h-screen flex flex-col border-r border-[#eee]">
       <div className="p-6 pb-2">
         <h2 className="text-2xl font-bold tracking-tight text-[var(--color-primary)]">
           Crowdly Admin
@@ -36,8 +39,8 @@ export default function Sidebar() {
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-md transition-colors text-sm font-medium ${
                 isActive
-                  ? 'bg-[var(--color-primary)] text-white'
-                  : 'text-[var(--color-text-secondary)] hover:bg-[var(--color-surface-container)] hover:text-[var(--color-text-primary)]'
+                  ? 'bg-[#ff5021] text-white shadow-md'
+                  : 'text-[#666] hover:bg-[#faf9f6] hover:text-[#111]'
               }`
             }
           >
@@ -47,7 +50,7 @@ export default function Sidebar() {
         ))}
       </nav>
 
-      <div className="p-4 border-t border-[var(--color-border-secondary)]">
+      <div className="p-4 border-t border-[#eee]">
         <button
           onClick={handleLogout}
           className="flex items-center w-full gap-3 px-4 py-3 text-sm font-medium text-red-600 rounded-md transition-colors hover:bg-red-50"
