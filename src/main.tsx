@@ -1,16 +1,23 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter } from 'react-router';
-import { AuthProvider } from './providers/AuthProvider';
 import './index.css';
 import App from './App.tsx';
+import store from './store/store.js';
+import { GoogleOAuthProvider } from '@react-oauth/google';
+import { Provider } from 'react-redux';
+
+const googleClientId =
+  import.meta.env.VITE_GOOGLE_CLIENT_ID || 'your-google-client-id.apps.googleusercontent.com';
+
 createRoot(document.getElementById('root')!).render(
-  //add redux here
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <App />
-      </AuthProvider>
-    </BrowserRouter>
+    <Provider store={store}>
+      <GoogleOAuthProvider clientId={googleClientId}>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </GoogleOAuthProvider>
+    </Provider>
   </StrictMode>
 );
