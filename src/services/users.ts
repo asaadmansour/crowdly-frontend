@@ -77,3 +77,14 @@ export async function updateUserById(id: number, payload: UpdateUserPayload) {
   const response = await api.put(`/users/${id}/`, payload);
   return response.data;
 }
+
+// ── Current-user project & donation history ───────────────────────────────
+export async function getMyProjects() {
+  const response = await api.get('/projects/me/');
+  return response.data;
+}
+
+export async function getMyDonations() {
+  const response = await api.get('/donations/me/');
+  return response.data;
+}
