@@ -274,7 +274,7 @@
     to right,
     #D85A30 0%,
     #D85A30 calc((var(--value, 100000) / 100000) * 100%),
-    var(--color-border-secondary, #dedbd6) calc((var(--value, 100000) / 100000) * 100%)
+    #ffffff calc((var(--value, 100000) / 100000) * 100%)
   );
   outline: none;
   cursor: pointer;

@@ -106,7 +106,6 @@ export default function ExplorePage() {
   const [status, setStatus] = useState('');
   const [maxGoal, setMaxGoal] = useState(100000);
   const [minRating, setMinRating] = useState(0);
-  const [ordering, setOrdering] = useState('-created_at');
 
   // ── Debounce search ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -128,7 +127,6 @@ export default function ExplorePage() {
     ...(status                      ? { status }                                   : {}),
     ...(maxGoal < 100000            ? { max_goal: maxGoal }                        : {}),
     ...(minRating > 0               ? { min_rating: minRating }                    : {}),
-    ordering,
   });
 
   // ── Effect 1: Filter changes → reset cursor, replace results ──────────────
@@ -150,7 +148,7 @@ export default function ExplorePage() {
 
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, selectedCategories, status, maxGoal, minRating, ordering]);
+  }, [debouncedSearch, selectedCategories, status, maxGoal, minRating]);
 
   // ── Load more: follows the cursor `next` URL returned by the API ───────────
   // Fetching the full `next` URL directly honours the cursor paginator;
@@ -180,7 +178,6 @@ export default function ExplorePage() {
     setStatus('');
     setMaxGoal(100000);
     setMinRating(0);
-    setOrdering('-created_at');
   };
 
   // ── Toggle category ────────────────────────────────────────────────────────
@@ -222,14 +219,7 @@ export default function ExplorePage() {
     });
   }
 
-  // ── Sort label map ─────────────────────────────────────────────────────────
-  const orderingOptions = [
-    { value: '-created_at', label: 'Most Recent' },
-    { value: 'created_at', label: 'Oldest' },
-    { value: '-total_donated', label: 'Most Funded' },
-    { value: 'total_donated', label: 'Least Funded' },
-    { value: '-average_rating', label: 'Highest Rated' },
-  ];
+
 
   const shown = projects.length;
   const remaining = Math.max(0, totalCount - shown);
@@ -314,6 +304,7 @@ export default function ExplorePage() {
               step={5000}
               value={maxGoal}
               onChange={(e) => setMaxGoal(Number(e.target.value))}
+              style={{ '--value': maxGoal } as React.CSSProperties}
             />
           </div>
 
@@ -358,25 +349,6 @@ export default function ExplorePage() {
             </div>
           )}
 
-          {/* Sort control — pushed to right */}
-          <div className="sort-control">
-            <span className="sort-label">SORT BY</span>
-            <div className="select-wrapper">
-              <select
-                id="explore-ordering"
-                className="filter-select sort-select"
-                value={ordering}
-                onChange={(e) => setOrdering(e.target.value)}
-              >
-                {orderingOptions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <span className="select-arrow">▾</span>
-            </div>
-          </div>
         </div>
 
         {/* Project grid */}
