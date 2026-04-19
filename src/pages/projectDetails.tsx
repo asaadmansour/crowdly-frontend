@@ -7,14 +7,15 @@ import CommunityFeed from '../components/CommunityFeed.tsx';
 import { Link, useNavigate, useParams } from 'react-router';
 import api from '../utils/api.js';
 import withLoading from '../utils/WithLoading.tsx';
-import { useSelector, useDispatch } from 'react-redux';
-import { fetchCurrentUser } from '../store/slices/authSlicer.js';
+import { useSelector } from 'react-redux';
 import DonationForm from './DonationForm.tsx';
+import { toast } from 'react-hot-toast';
+
 const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL;
 function ProjectDetails() {
   const navigate = useNavigate();
   const params = useParams();
-  const dispatch = useDispatch();
+
   const [project, setProject] = useState<any>(null);
   const [commentRefresh, setCommentRefresh] = useState(0);
   const [rating, setRating] = useState(0);
@@ -25,11 +26,15 @@ function ProjectDetails() {
   const [isCustomAmount, setIsCustomAmount] = useState(false);
   const user = useSelector((state: any) => state.auth.user);
   const handleRating = async () => {
-    await withLoading(
-      api.post(`${BASE_URL}/interactions/projects/${params.id}/ratings/`, { score: userRating })
-    ).then(() => {
+    try {
+      await withLoading(
+        api.post(`${BASE_URL}/interactions/projects/${params.id}/ratings/`, { score: userRating })
+      );
+      toast.success('Thank you for your rating!');
       setCommentRefresh((prev) => prev + 1);
-    });
+    } catch (error) {
+      toast.error('Failed to submit rating. Please try again.');
+    }
   };
 
   useEffect(() => {
@@ -68,32 +73,14 @@ function ProjectDetails() {
         const fetchedSimilar =
           similarDB.data?.results || similarDB.data?.result || similarDB.data || [];
         const similarArray = Array.isArray(fetchedSimilar) ? fetchedSimilar : [];
-
-        // Concurrently fetch the cover images for all similar projects
-        const projectsWithImages = await Promise.all(
-          similarArray.map(async (proj: any) => {
-            try {
-              const projImagesDB = await api.get(`${BASE_URL}/projects/${proj.id}/images/`);
-              const imgData =
-                projImagesDB.data?.results || projImagesDB.data?.result || projImagesDB.data || [];
-              const imagesArray = Array.isArray(imgData) ? imgData : [];
-
-              // Sort by 'order' so the intended cover image (order 0) is accurately chosen
-              const sortedImages = [...imagesArray].sort(
-                (a: any, b: any) => (a.order || 0) - (b.order || 0)
-              );
-              const coverImage =
-                sortedImages.length > 0
-                  ? sortedImages[0].image_url || sortedImages[0].image || sortedImages[0]
-                  : null;
-
-              return { ...proj, coverImage };
-            } catch (err) {
-              console.error(`Failed to load image for similar proj ${proj.id}:`, err);
-              return { ...proj, coverImage: null };
-            }
-          })
-        );
+        const projectsWithImages = similarArray.map((proj: any) => {
+          const images = proj.images || proj.cover_images || [];
+          const sortedImages = [...images].sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+          const coverImage = sortedImages.length > 0
+            ? sortedImages[0].image_url || sortedImages[0].image || null
+            : null;
+          return { ...proj, coverImage };
+        });
 
         setSimilarProjects(projectsWithImages as any);
       } catch (error) {
@@ -144,7 +131,6 @@ function ProjectDetails() {
         <br></br>
         <CommunityFeed
           projectId={String(project.id)}
-          onInteraction={() => setCommentRefresh((prev) => prev + 1)}
         />
         <div className="mt-12">
           <h3 className="headline-md mb-6">You Might Also Like</h3>

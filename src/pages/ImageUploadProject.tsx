@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import withLoading from '../utils/WithLoading';
 import api from '../utils/api.js';
 import { useParams, useNavigate } from 'react-router';
+import { toast } from 'react-hot-toast';
+import { PulseLoader } from 'react-spinners';
 
 // Inline Icons
 const UploadCloudIcon = ({ className }: { className?: string }) => (
@@ -96,6 +98,8 @@ function ImageUploadProject() {
     setImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  const [isUploading, setIsUploading] = useState(false);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setError('');
@@ -110,6 +114,9 @@ function ImageUploadProject() {
       return;
     }
 
+    setIsUploading(true);
+    const uploadToast = toast.loading('Uploading your photos...');
+
     try {
       await withLoading(
         Promise.all(
@@ -122,9 +129,13 @@ function ImageUploadProject() {
           })
         )
       );
+      toast.success('Project published successfully!', { id: uploadToast });
       navigate(`/projectDetails/${projectId}`);
     } catch (err) {
       setError('An error occurred while uploading. Please try again later.');
+      toast.error('Upload failed. Please try again.', { id: uploadToast });
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -276,14 +287,18 @@ function ImageUploadProject() {
               <button
                 type="submit"
                 className={`btn-primary flex items-center gap-2 rounded-xl px-8 py-3.5 shadow-[0_4px_14px_0_rgba(255,86,0,0.39)] transition-all duration-200 ${
-                  images.length < 2
+                  images.length < 2 || isUploading
                     ? 'opacity-50 cursor-not-allowed hover:shadow-none hover:transform-none'
                     : 'hover:-translate-y-0.5 hover:shadow-[0_6px_20px_rgba(255,86,0,0.3)]'
                 }`}
-                disabled={images.length < 2}
+                disabled={images.length < 2 || isUploading}
               >
-                <UploadCloudIcon className="w-4 h-4" />
-                <span>Publish Project</span>
+                {isUploading ? (
+                  <PulseLoader color="#fff" size={8} />
+                ) : (
+                  <UploadCloudIcon className="w-4 h-4" />
+                )}
+                <span>{isUploading ? 'Publishing...' : 'Publish Project'}</span>
               </button>
             </div>
           </form>

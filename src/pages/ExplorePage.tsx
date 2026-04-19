@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { getProjects, getCategories } from '../services/projects';
+import api from '../utils/api';
 import ProjectCard from '../components/ProjectCard';
 import LoadingSkeleton from '../components/LoadingSkeleton';
 import EmptyState from '../components/EmptyState';
+import withLoading from '../utils/WithLoading';
 import './ExplorePage.css';
 
 interface ActiveFilter {
@@ -26,8 +28,67 @@ interface Project {
   end_time: string;
   average_rating?: number;
   donor_count?: number;
-  creator?: string;
+  owner?: string;
   images?: { image: string }[];
+}
+
+// ── RatingPicker sub-component ─────────────────────────────────────────────
+function RatingPicker({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+}) {
+  const [hovered, setHovered] = useState(0);
+  const effective = hovered || value; // stars to light up
+
+  return (
+    <div className="rating-picker">
+      <div
+        className="rating-stars-row"
+        onMouseLeave={() => setHovered(0)}
+        role="group"
+        aria-label="Minimum rating"
+      >
+        {[1, 2, 3, 4, 5].map((star) => (
+          <button
+            key={star}
+            type="button"
+            className={`star-btn ${star <= effective ? 'star-btn--filled' : ''} ${
+              star <= value && !hovered ? 'star-btn--selected' : ''
+            }`}
+            aria-label={`${star} star${star > 1 ? 's' : ''} & up`}
+            aria-pressed={value === star}
+            onMouseEnter={() => setHovered(star)}
+            onClick={() => onChange(value === star ? 0 : star)}
+          >
+            ★
+          </button>
+        ))}
+      </div>
+
+      {/* Contextual label */}
+      <p className="rating-picker-hint">
+        {value === 0
+          ? 'All ratings'
+          : value === 5
+          ? 'Only 5-star projects'
+          : `${value}★ and above`}
+      </p>
+
+      {/* "Any" reset chip — only visible when a rating is active */}
+      {value > 0 && (
+        <button
+          type="button"
+          className="rating-all-chip"
+          onClick={() => onChange(0)}
+        >
+          ✕ Clear rating
+        </button>
+      )}
+    </div>
+  );
 }
 
 export default function ExplorePage() {
@@ -36,9 +97,8 @@ export default function ExplorePage() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
-  const [nextPage, setNextPage] = useState<string | null>(null);
+  const [nextCursor, setNextCursor] = useState<string | null>(null);
 
   // ── Filter state ───────────────────────────────────────────────────────────
   const [search, setSearch] = useState('');
@@ -47,7 +107,6 @@ export default function ExplorePage() {
   const [status, setStatus] = useState('');
   const [maxGoal, setMaxGoal] = useState(100000);
   const [minRating, setMinRating] = useState(0);
-  const [ordering, setOrdering] = useState('-created_at');
 
   // ── Debounce search ────────────────────────────────────────────────────────
   useEffect(() => {
@@ -57,8 +116,8 @@ export default function ExplorePage() {
 
   // ── Fetch categories once ──────────────────────────────────────────────────
   useEffect(() => {
-    getCategories()
-      .then((res) => setCategories(res.data?.results ?? res.data ?? []))
+    withLoading(getCategories())
+      .then((res: any) => setCategories(res.data?.results ?? res.data ?? []))
       .catch(() => setCategories([]));
   }, []);
 
@@ -69,43 +128,45 @@ export default function ExplorePage() {
     ...(status                      ? { status }                                   : {}),
     ...(maxGoal < 100000            ? { max_goal: maxGoal }                        : {}),
     ...(minRating > 0               ? { min_rating: minRating }                    : {}),
-    ordering,
   });
 
-  // ── Effect 1: Filter changes → reset to page 1, replace results ────────────
+  // ── Effect 1: Filter changes → reset cursor, replace results ──────────────
   useEffect(() => {
     let cancelled = false;
     setIsLoading(true);
-    setPage(1);
+    setNextCursor(null);
 
-    getProjects({ ...buildFilterParams(), page: 1 })
-      .then((res) => {
+    withLoading(getProjects(buildFilterParams()))
+      .then((res: any) => {
         if (cancelled) return;
         const data = res.data;
         setProjects(data.results ?? []);
         setTotalCount(data.count ?? 0);
-        setNextPage(data.next ?? null);
+        setNextCursor(data.next ?? null);
       })
-      .catch(() => { if (!cancelled) setProjects([]); })
-      .finally(() => { if (!cancelled) setIsLoading(false); });
+      .catch(() => {
+        if (!cancelled) setProjects([]);
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoading(false);
+      });
 
     return () => { cancelled = true; };
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, selectedCategories, status, maxGoal, minRating, ordering]);
+  }, [debouncedSearch, selectedCategories, status, maxGoal, minRating]);
 
-  // ── Load more: plain async handler, reads page state directly ──────────────
-  // Event handlers always see the latest state — no refs or useCallback needed.
+  // ── Load more: follows the cursor `next` URL returned by the API ───────────
+  // Fetching the full `next` URL directly honours the cursor paginator;
+  // Axios forwards the auth interceptors even for absolute URLs.
   const loadMore = async () => {
-    if (isLoadingMore) return;
-    const nextPageNum = page + 1;
+    if (isLoadingMore || !nextCursor) return;
     setIsLoadingMore(true);
     try {
-      const res = await getProjects({ ...buildFilterParams(), page: nextPageNum });
+      const res = await withLoading(api.get(nextCursor));
       const data = res.data;
       setProjects((prev) => [...prev, ...(data.results ?? [])]);
       setTotalCount(data.count ?? 0);
-      setNextPage(data.next ?? null);
-      setPage(nextPageNum);
+      setNextCursor(data.next ?? null);
     } catch {
       // silently ignore — existing results stay on screen
     } finally {
@@ -122,7 +183,6 @@ export default function ExplorePage() {
     setStatus('');
     setMaxGoal(100000);
     setMinRating(0);
-    setOrdering('-created_at');
   };
 
   // ── Toggle category ────────────────────────────────────────────────────────
@@ -164,14 +224,7 @@ export default function ExplorePage() {
     });
   }
 
-  // ── Sort label map ─────────────────────────────────────────────────────────
-  const orderingOptions = [
-    { value: '-created_at', label: 'Most Recent' },
-    { value: 'created_at', label: 'Oldest' },
-    { value: '-total_donated', label: 'Most Funded' },
-    { value: 'total_donated', label: 'Least Funded' },
-    { value: '-average_rating', label: 'Highest Rated' },
-  ];
+
 
   const shown = projects.length;
   const remaining = Math.max(0, totalCount - shown);
@@ -256,33 +309,14 @@ export default function ExplorePage() {
               step={5000}
               value={maxGoal}
               onChange={(e) => setMaxGoal(Number(e.target.value))}
+              style={{ '--value': maxGoal } as React.CSSProperties}
             />
           </div>
 
           {/* Rating */}
           <div className="filter-section">
-            <p className="filter-label">RATING</p>
-            <ul className="rating-list">
-              {[
-                { value: 5, label: '5★ & Up' },
-                { value: 4, label: '4★ & Up' },
-                { value: 3, label: '3★ & Up' },
-                { value: 0, label: 'All Ratings' },
-              ].map((opt) => (
-                <li key={opt.value} className="rating-item">
-                  <label className="rating-label">
-                    <input
-                      type="radio"
-                      className="filter-radio"
-                      name="rating"
-                      checked={minRating === opt.value}
-                      onChange={() => setMinRating(opt.value)}
-                    />
-                    <span>{opt.label}</span>
-                  </label>
-                </li>
-              ))}
-            </ul>
+            <p className="filter-label">MIN RATING</p>
+            <RatingPicker value={minRating} onChange={setMinRating} />
           </div>
 
           {/* Clear All */}
@@ -320,25 +354,6 @@ export default function ExplorePage() {
             </div>
           )}
 
-          {/* Sort control — pushed to right */}
-          <div className="sort-control">
-            <span className="sort-label">SORT BY</span>
-            <div className="select-wrapper">
-              <select
-                id="explore-ordering"
-                className="filter-select sort-select"
-                value={ordering}
-                onChange={(e) => setOrdering(e.target.value)}
-              >
-                {orderingOptions.map((o) => (
-                  <option key={o.value} value={o.value}>
-                    {o.label}
-                  </option>
-                ))}
-              </select>
-              <span className="select-arrow">▾</span>
-            </div>
-          </div>
         </div>
 
         {/* Project grid */}
@@ -365,7 +380,7 @@ export default function ExplorePage() {
                 end_time={project.end_time}
                 rating={project.average_rating ?? 0}
                 donor_count={project.donor_count ?? 0}
-                creator_name={project.creator ?? ''}
+                creator_name={project.owner ?? ''}
                 image={project.images?.[0]?.image}
               />
             ))
@@ -373,7 +388,7 @@ export default function ExplorePage() {
         </div>
 
         {/* Load more */}
-        {!isLoading && nextPage && shown < totalCount && (
+        {!isLoading && nextCursor && shown < totalCount && (
           <div className="load-more-section">
             <button
               id="explore-load-more"

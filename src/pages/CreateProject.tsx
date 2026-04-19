@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import api from '../utils/api.js';
 import withLoading from '../utils/WithLoading';
 import { useNavigate } from 'react-router';
+import { toast } from 'react-hot-toast';
 
 const RocketIcon = ({ className }: { className?: string }) => (
   <svg
@@ -89,9 +90,14 @@ function CreateProject() {
 
   const navigate = useNavigate();
   const handleSubmit = async (value: any) => {
-    const res = await withLoading(api.post(`${BASE_URL}/projects/`, value));
-    const projectId = res.data.id;
-    navigate(`/projects/${projectId}/images/`);
+    try {
+      const res = await withLoading(api.post(`${BASE_URL}/projects/`, value));
+      const projectId = res.data.id;
+      toast.success('Project details saved! Now let\'s add some images.');
+      navigate(`/projects/${projectId}/images/`);
+    } catch (err) {
+      toast.error('Failed to create project. Please check the fields.');
+    }
   };
 
   useEffect(() => {

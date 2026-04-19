@@ -1,8 +1,11 @@
 import { useState } from 'react';
+import { toast } from 'react-hot-toast';
+import withLoading from '../utils/WithLoading';
+import api from '../utils/api.js';
 
 export default function DonateButton({ projectId, amount }: { projectId: string | number, amount: string | number }) {
   const [loading, setLoading] = useState(false);
-  const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL || 'http://localhost:8000/api';
+  const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL;
 
   const handleDonate = async () => {
     if (!amount || Number(amount) <= 0) return;
@@ -10,24 +13,22 @@ export default function DonateButton({ projectId, amount }: { projectId: string 
     setLoading(true);
 
     try {
-      const response = await fetch(`${BASE_URL}/donations/checkout/${projectId}/`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('access_token')}`
-        },
-        body: JSON.stringify({ amount: Number(amount) })
-      });
+      const response = await withLoading(api.post(`${BASE_URL}/donations/checkout/${projectId}/`, {
+        amount: Number(amount)
+      }));
 
-      const data = await response.json();
+      const data = response.data;
       if (data.checkout_url) {
+        toast.loading('Redirecting to secure checkout...');
         window.location.href = data.checkout_url;
       } else {
         console.error('Failed to get checkout URL', data);
+        toast.error('Unable to initiate donation. Please try again.');
         setLoading(false);
       }
     } catch (error) {
       console.error('Error:', error);
+      // withLoading already shows a toast error if it fails
       setLoading(false);
     }
   };
