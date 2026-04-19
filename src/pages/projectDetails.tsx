@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import AuthorRow from '../components/AuthorRow.tsx';
 import ImageSlider from '../components/ImageSlider.tsx';
-import ProjectCard from '../components/ProjectCard.tsx';
+import ProjectCardDetails from '../components/ProjectCardDetails.tsx';
 import CreatorToolKit from '../components/CreatorToolKit.tsx';
 import CommunityFeed from '../components/CommunityFeed.tsx';
 import { Link, useNavigate, useParams } from 'react-router';
@@ -9,6 +9,7 @@ import api from '../utils/api.js';
 import withLoading from '../utils/WithLoading.tsx';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCurrentUser } from '../store/slices/authSlicer.js';
+import DonationForm from './DonationForm.tsx';
 const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL;
 function ProjectDetails() {
   const navigate = useNavigate();
@@ -20,8 +21,9 @@ function ProjectDetails() {
   const [userRating, setUserRating] = useState(0);
   const [images, setImages] = useState([]);
   const [similarProjects, setSimilarProjects] = useState([]);
+  const [donationAmount, setDonationAmount] = useState<number | string>('');
+  const [isCustomAmount, setIsCustomAmount] = useState(false);
   const user = useSelector((state: any) => state.auth.user);
-  console.log(user);
   const handleRating = async () => {
     await withLoading(
       api.post(`${BASE_URL}/interactions/projects/${params.id}/ratings/`, { score: userRating })
@@ -54,7 +56,7 @@ function ProjectDetails() {
           imagesDB.data?.results || imagesDB.data?.result || imagesDB.data || [];
         const imageList = Array.isArray(fetchedImages) ? fetchedImages : [];
         // Map over the objects to extract the 'image' string URL because ImageSlider expects a string array
-        setImages(imageList.map((img: any) => img.image_url || img));
+        setImages(imageList.map((img: any) => img.image_url || img.image || img));
       } catch (error) {
         console.error('Failed to load project images:', error);
         setImages([]);
@@ -81,7 +83,9 @@ function ProjectDetails() {
                 (a: any, b: any) => (a.order || 0) - (b.order || 0)
               );
               const coverImage =
-                sortedImages.length > 0 ? sortedImages[0].image || sortedImages[0] : null;
+                sortedImages.length > 0
+                  ? sortedImages[0].image_url || sortedImages[0].image || sortedImages[0]
+                  : null;
 
               return { ...proj, coverImage };
             } catch (err) {
@@ -147,7 +151,7 @@ function ProjectDetails() {
           <div className="grid grid-cols-4 gap-4">
             {similarProjects.map((project: any, index) => (
               <Link to={`/projectDetails/${project.id}/`} key={project.id || index}>
-                <ProjectCard
+                <ProjectCardDetails
                   image={
                     project.coverImage || 'https://placehold.co/400x300/f4f3f1/6b6b6b?text=No+Cover'
                   }
@@ -259,23 +263,53 @@ function ProjectDetails() {
           ) : (
             <>
               <div className="grid grid-cols-3 gap-2 mt-6">
-                {[5, 10, 15, 35].slice(0, 3).map((amount) => (
+                {[50, 100, 200, 500].slice(0, 3).map((amount) => (
                   <div
                     key={amount}
-                    className="py-3 bg-white border border-[var(--color-outline-variant)] rounded-lg text-center text-sm font-semibold cursor-pointer hover:border-[var(--color-primary)] transition-colors"
+                    onClick={() => {
+                      setDonationAmount(amount);
+                      setIsCustomAmount(false);
+                    }}
+                    className={`py-3 bg-white border ${!isCustomAmount && donationAmount === amount ? 'border-[var(--color-primary)] text-[var(--color-primary)] shadow-sm' : 'border-[var(--color-outline-variant)]'} rounded-lg text-center text-sm font-semibold cursor-pointer hover:border-[var(--color-primary)] transition-colors`}
                   >
-                    ${amount}
+                    {amount} EGP
                   </div>
                 ))}
-                <div className="py-3 bg-white border border-[var(--color-outline-variant)] rounded-lg text-center text-sm font-semibold cursor-pointer hover:border-[var(--color-primary)] transition-colors">
-                  $35
+
+                <div
+                  onClick={() => {
+                    setDonationAmount(500);
+                    setIsCustomAmount(false);
+                  }}
+                  className={`py-3 bg-white border ${!isCustomAmount && donationAmount === 500 ? 'border-[var(--color-primary)] text-[var(--color-primary)] shadow-sm' : 'border-[var(--color-outline-variant)]'} rounded-lg text-center text-sm font-semibold cursor-pointer hover:border-[var(--color-primary)] transition-colors`}
+                >
+                  500 EGP
                 </div>
-                <div className="bg-white col-span-2 py-3 border border-[var(--color-outline-variant)] rounded-lg text-center text-sm font-semibold cursor-pointer hover:border-[var(--color-primary)] transition-colors">
-                  Custom ✎
+
+                <div
+                  onClick={() => {
+                    setDonationAmount('');
+                    setIsCustomAmount(true);
+                  }}
+                  className={`bg-white col-span-2 py-3 border ${isCustomAmount ? 'border-[var(--color-primary)] text-[var(--color-primary)] shadow-sm' : 'border-[var(--color-outline-variant)]'} rounded-lg text-center text-sm font-semibold cursor-pointer hover:border-[var(--color-primary)] transition-colors`}
+                >
+                  {isCustomAmount ? (
+                    <input
+                      type="number"
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-full text-center outline-none bg-transparent"
+                      placeholder="Enter amount (EGP)"
+                      value={donationAmount}
+                      onChange={(e) => setDonationAmount(e.target.value)}
+                      autoFocus
+                    />
+                  ) : (
+                    'Custom ✎'
+                  )}
                 </div>
               </div>
 
-              <button className="btn-primary w-full mt-4 py-3">Confirm Donation</button>
+              <DonationForm projectId={project.id} amount={donationAmount} />
 
               <p className="label-md text-[var(--color-text-secondary)] text-center mt-3">
                 By pledging, you agree to our Editorial Guidelines.

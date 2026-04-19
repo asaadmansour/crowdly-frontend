@@ -14,17 +14,17 @@ export default function AdminCategories() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
-  
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editId, setEditId] = useState<number | null>(null);
-  
+
   const [formData, setFormData] = useState({ name: '', description: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const fetchCategories = async () => {
     setLoading(true);
     try {
-      const { data } = await api.get(`/admin-panel/categories/?page=1&page_size=100&search=${search}`);
+      const { data } = await api.get('/projects/categories/');
       // Handle paginated response typically { results: [...] } or direct array
       setCategories(data.results || data);
     } catch {
@@ -68,12 +68,12 @@ export default function AdminCategories() {
 
     try {
       if (editId) {
-        await api.put(`/admin-panel/categories/${editId}/`, payload, {
+        await api.put(`/projects/categories/${editId}/`, payload, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         toast.success('Category updated successfully');
       } else {
-        await api.post('/admin-panel/categories/', payload, {
+        await api.post('/projects/categories/', payload, {
           headers: { 'Content-Type': 'multipart/form-data' },
         });
         toast.success('Category created successfully');
@@ -89,7 +89,7 @@ export default function AdminCategories() {
   const handleDelete = async (id: number) => {
     if (!window.confirm('Are you sure you want to delete this category?')) return;
     try {
-      await api.delete(`/admin-panel/categories/${id}/`);
+      await api.delete(`/projects/categories/${id}/`);
       toast.success('Category deleted');
       fetchCategories();
     } catch {
@@ -102,7 +102,9 @@ export default function AdminCategories() {
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-[var(--color-primary)]">Categories</h1>
-          <p className="text-[var(--color-text-secondary)] mt-1">Manage project categories available on the platform</p>
+          <p className="text-[var(--color-text-secondary)] mt-1">
+            Manage project categories available on the platform
+          </p>
         </div>
         <button className="btn-primary flex items-center gap-2" onClick={() => openModal()}>
           <Plus size={18} /> Add Category
@@ -120,7 +122,9 @@ export default function AdminCategories() {
       </div>
 
       {loading ? (
-        <div className="text-center py-10 text-[var(--color-text-secondary)]">Loading categories...</div>
+        <div className="text-center py-10 text-[var(--color-text-secondary)]">
+          Loading categories...
+        </div>
       ) : (
         <div className="card ghost-border overflow-hidden">
           <table className="w-full text-left border-collapse">
@@ -137,18 +141,32 @@ export default function AdminCategories() {
                 <tr key={cat.id} className="hover:bg-[var(--color-surface-low)] transition-colors">
                   <td className="p-4">
                     {cat.image ? (
-                      <img src={cat.image} alt={cat.name} className="w-12 h-12 object-cover rounded shadow-sm" />
+                      <img
+                        src={cat.image}
+                        alt={cat.name}
+                        className="w-12 h-12 object-cover rounded shadow-sm"
+                      />
                     ) : (
-                      <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">None</div>
+                      <div className="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-xs text-gray-500">
+                        None
+                      </div>
                     )}
                   </td>
                   <td className="p-4 font-semibold text-[var(--color-text-primary)]">{cat.name}</td>
-                  <td className="p-4 text-sm text-[var(--color-text-secondary)] max-w-md truncate">{cat.description}</td>
+                  <td className="p-4 text-sm text-[var(--color-text-secondary)] max-w-md truncate">
+                    {cat.description}
+                  </td>
                   <td className="p-4 text-right">
-                    <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors mr-2" onClick={() => openModal(cat)}>
+                    <button
+                      className="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition-colors mr-2"
+                      onClick={() => openModal(cat)}
+                    >
                       <Edit2 size={16} />
                     </button>
-                    <button className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors" onClick={() => handleDelete(cat.id!)}>
+                    <button
+                      className="p-2 text-red-600 hover:bg-red-50 rounded-full transition-colors"
+                      onClick={() => handleDelete(cat.id!)}
+                    >
                       <Trash2 size={16} />
                     </button>
                   </td>
@@ -156,7 +174,9 @@ export default function AdminCategories() {
               ))}
               {categories.length === 0 && (
                 <tr>
-                  <td colSpan={4} className="p-8 text-center text-gray-500">No categories found.</td>
+                  <td colSpan={4} className="p-8 text-center text-gray-500">
+                    No categories found.
+                  </td>
                 </tr>
               )}
             </tbody>
@@ -172,7 +192,9 @@ export default function AdminCategories() {
             </h2>
             <form onSubmit={handleSave} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Name</label>
+                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+                  Name
+                </label>
                 <input
                   type="text"
                   required
@@ -182,7 +204,9 @@ export default function AdminCategories() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Description</label>
+                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+                  Description
+                </label>
                 <textarea
                   required
                   rows={3}
@@ -192,7 +216,9 @@ export default function AdminCategories() {
                 ></textarea>
               </div>
               <div>
-                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">Cover Image</label>
+                <label className="block text-sm font-medium text-[var(--color-text-secondary)] mb-1">
+                  Cover Image
+                </label>
                 <input
                   type="file"
                   accept="image/*"
@@ -205,8 +231,16 @@ export default function AdminCategories() {
                 />
               </div>
               <div className="flex justify-end gap-3 mt-8">
-                <button type="button" onClick={closeModal} className="btn-secondary text-[var(--color-text-primary)]">Cancel</button>
-                <button type="submit" className="btn-primary">Save Category</button>
+                <button
+                  type="button"
+                  onClick={closeModal}
+                  className="btn-secondary text-[var(--color-text-primary)]"
+                >
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary">
+                  Save Category
+                </button>
               </div>
             </form>
           </div>

@@ -1,13 +1,19 @@
-import { Routes, Route, Navigate } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import Home from './pages/Home';
+import ExplorePage from './pages/ExplorePage';
+import ProfilePage from './pages/ProfilePage';
+import EditProfilePage from './pages/EditProfilePage';
+
 import LoginPage from './pages/login-page/LoginPage.tsx';
 import GlobalSpinner from './components/GlobalSpinner.tsx';
 import { Toaster } from 'react-hot-toast';
-import ProjectDetails from './pages/projectDetails.tsx';
 import { useEffect } from 'react';
 import { fetchCurrentUser } from './store/slices/authSlicer';
 import CreateProject from './pages/CreateProject.tsx';
 import ImageUploadProject from './pages/ImageUploadProject.tsx';
+import DonationSuccess from './pages/DonationSuccess.tsx';
+import DonationCancel from './pages/DonationCancel.tsx';
 import RegisterPage from './pages/register-page/RegisterPage.tsx';
 import EmailPage from './pages/email-page/EmailPage.tsx';
 import ResetPasswordPage from './pages/reset-password-page/ResetPasswordPage.tsx';
@@ -16,23 +22,24 @@ import VerifyEmailToken from './pages/verfiy-email-token/VerfiyEmailToken.tsx';
 import PrivateRoute from './components/PrivateRoute.tsx';
 import GuestRoute from './components/GuestRoute.tsx';
 import Layout from './components/Layout';
-import Explore from './pages/Explore';
+// import Explore from './pages/Explore';
 import Categories from './pages/Categories';
 import CategoryProjects from './pages/CategoryProjects';
 import SearchResults from './pages/SearchResults';
+import ProjectDetails from './pages/projectDetails';
 import Contact from './pages/Contact';
 import About from './pages/About';
 import PrivacyTerms from './pages/PrivacyTerms';
 import NotFound from './pages/NotFound';
-import Home from './pages/Home.tsx';
-
-// Admin Imports
 import AdminLayout from './components/admin/AdminLayout';
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminCategories from './pages/admin/AdminCategories';
 import AdminProjectReports from './pages/admin/AdminProjectReports';
 import AdminCommentReports from './pages/admin/AdminCommentReports';
 import AdminReplyReports from './pages/admin/AdminReplyReports';
+import AdminProjects from './pages/admin/AdminProjects';
+import AdminUsers from './pages/admin/AdminUsers';
+import AdminDonations from './pages/admin/AdminDonations';
 
 export default function App() {
   const dispatch = useDispatch();
@@ -59,14 +66,7 @@ export default function App() {
             }
           />
 
-          <Route
-            path="/explore"
-            element={
-              <PrivateRoute>
-                <Explore />
-              </PrivateRoute>
-            }
-          />
+          <Route path="/explore" element={<ExplorePage />} />
           <Route
             path="/categories"
             element={
@@ -124,6 +124,22 @@ export default function App() {
             }
           />
           <Route
+            path="/profile"
+            element={
+              <PrivateRoute>
+                <ProfilePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/profile/edit"
+            element={
+              <PrivateRoute>
+                <EditProfilePage />
+              </PrivateRoute>
+            }
+          />
+          <Route
             path="/projectDetails/:id"
             element={
               <PrivateRoute>
@@ -147,12 +163,31 @@ export default function App() {
               </PrivateRoute>
             }
           />
+          <Route
+            path="/donation/success"
+            element={
+              <PrivateRoute>
+                <DonationSuccess />
+              </PrivateRoute>
+            }
+          />
+          <Route
+            path="/donation/cancel"
+            element={
+              <PrivateRoute>
+                <DonationCancel />
+              </PrivateRoute>
+            }
+          />
         </Route>
 
         {/* Admin Routes */}
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<AdminDashboard />} />
           <Route path="categories" element={<AdminCategories />} />
+          <Route path="projects" element={<AdminProjects />} />
+          <Route path="users" element={<AdminUsers />} />
+          <Route path="donations" element={<AdminDonations />} />
           <Route path="reports/projects" element={<AdminProjectReports />} />
           <Route path="reports/comments" element={<AdminCommentReports />} />
           <Route path="reports/replies" element={<AdminReplyReports />} />
