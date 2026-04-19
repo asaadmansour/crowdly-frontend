@@ -54,7 +54,7 @@ function ProjectDetails() {
           imagesDB.data?.results || imagesDB.data?.result || imagesDB.data || [];
         const imageList = Array.isArray(fetchedImages) ? fetchedImages : [];
         // Map over the objects to extract the 'image' string URL because ImageSlider expects a string array
-        setImages(imageList.map((img: any) => img.image || img));
+        setImages(imageList.map((img: any) => img.image_url || img));
       } catch (error) {
         console.error('Failed to load project images:', error);
         setImages([]);
@@ -107,8 +107,8 @@ function ProjectDetails() {
   }
   const percentage = Math.round((project.total_donated / project.total_target) * 100);
   const isExpired = Date.now() > Number(new Date(project.end_time));
-  const daysLeft = isExpired 
-    ? 0 
+  const daysLeft = isExpired
+    ? 0
     : Math.ceil((Number(new Date(project.end_time)) - Date.now()) / (1000 * 60 * 60 * 24));
   return (
     <div className="grid grid-cols-3 gap-3 bg-[var(--color-background)] p-5">
@@ -119,7 +119,10 @@ function ProjectDetails() {
             {project.category.name}
           </span>
           {project.tags?.map((tag: any) => (
-            <span key={tag.id} className="bg-[var(--color-surface-container)] text-[var(--color-text-secondary)] border border-[var(--color-outline-variant)] rounded-md label-md px-2 py-1">
+            <span
+              key={tag.id}
+              className="bg-[var(--color-surface-container)] text-[var(--color-text-secondary)] border border-[var(--color-outline-variant)] rounded-md label-md px-2 py-1"
+            >
               #{tag.name}
             </span>
           ))}
@@ -135,9 +138,9 @@ function ProjectDetails() {
           daysLeft={daysLeft}
         />
         <br></br>
-        <CommunityFeed 
-          projectId={String(project.id)} 
-          onInteraction={() => setCommentRefresh((prev) => prev + 1)} 
+        <CommunityFeed
+          projectId={String(project.id)}
+          onInteraction={() => setCommentRefresh((prev) => prev + 1)}
         />
         <div className="mt-12">
           <h3 className="headline-md mb-6">You Might Also Like</h3>
@@ -212,7 +215,9 @@ function ProjectDetails() {
               Leave a Rating:
             </p>
             {isExpired ? (
-              <p className="text-sm font-semibold text-red-500">Ratings are closed (Campaign Ended).</p>
+              <p className="text-sm font-semibold text-red-500">
+                Ratings are closed (Campaign Ended).
+              </p>
             ) : (
               <div className="flex items-center gap-4">
                 <div className="flex gap-1">
@@ -279,7 +284,11 @@ function ProjectDetails() {
           )}
         </div>
         {user?.username === project.owner && (
-          <CreatorToolKit percentage={percentage} isExpired={isExpired}></CreatorToolKit>
+          <CreatorToolKit
+            id={params.id}
+            percentage={percentage}
+            isExpired={isExpired}
+          ></CreatorToolKit>
         )}
       </div>
     </div>

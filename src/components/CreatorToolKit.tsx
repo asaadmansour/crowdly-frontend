@@ -1,9 +1,18 @@
+import { useNavigate } from 'react-router';
+import withLoading from '../utils/WithLoading';
+import api from '../utils/api.js';
 type CreatorToolKitProps = {
   percentage: number;
   isExpired: boolean;
+  id: number;
 };
-
-function CreatorToolKit({ percentage, isExpired }: CreatorToolKitProps) {
+const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL;
+function CreatorToolKit({ percentage, isExpired, id }: CreatorToolKitProps) {
+  const navigate = useNavigate();
+  const handleDelete = async () => {
+    await withLoading(api.delete(`${BASE_URL}/projects/${id}/`));
+    navigate('/');
+  };
   return (
     <div className="card p-4 mt-4">
       <div className="flex items-center gap-2 mb-4">
@@ -19,7 +28,10 @@ function CreatorToolKit({ percentage, isExpired }: CreatorToolKitProps) {
       </button>
 
       {percentage < 25 && !isExpired && (
-        <button className="w-full py-2 rounded-lg border border-red-500 text-red-500 label-md mt-3 hover:bg-red-50 transition-colors">
+        <button
+          onClick={() => handleDelete()}
+          className="w-full py-2 rounded-lg border border-red-500 text-red-500 label-md mt-3 hover:bg-red-50 transition-colors"
+        >
           CANCEL CAMPAIGN
         </button>
       )}
