@@ -13,7 +13,7 @@ function validate(data: typeof EMPTY_FORM): Record<string, string> {
   const errs: Record<string, string> = {};
 
   if (!data.first_name.trim()) errs.first_name = 'First name is required.';
-  if (!data.last_name.trim())  errs.last_name  = 'Last name is required.';
+  if (!data.last_name.trim()) errs.last_name = 'Last name is required.';
 
   if (data.phone && !EG_PHONE_RE.test(data.phone)) {
     errs.phone = 'Enter a valid Egyptian phone number (e.g. 01012345678).';
@@ -32,49 +32,52 @@ function validate(data: typeof EMPTY_FORM): Record<string, string> {
 }
 
 const EMPTY_FORM = {
-  first_name:       '',
-  last_name:        '',
-  email:            '',
-  phone:            '',
-  birthdate:        '',
-  country:          '',
+  first_name: '',
+  last_name: '',
+  email: '',
+  phone: '',
+  birthdate: '',
+  country: '',
   facebook_profile: '',
 };
 
 export default function EditProfilePage() {
-  const navigate   = useNavigate();
-  const dispatch   = useDispatch();
-  const { user }   = useSelector((state: any) => state.auth);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: any) => state.auth);
 
   // ── Form state ────────────────────────────────────────────────────────────
-  const [formData, setFormData]           = useState({ ...EMPTY_FORM });
-  const [errors, setErrors]               = useState<Record<string, string>>({});
-  const [isSubmitting, setIsSubmitting]   = useState(false);
+  const [formData, setFormData] = useState({ ...EMPTY_FORM });
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
-  const [errorMessage, setErrorMessage]   = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   // ── Pre-fill form from auth context ──────────────────────────────────────
   useEffect(() => {
     if (!user) return;
     setFormData({
-      first_name:       user.first_name ?? '',
-      last_name:        user.last_name ?? '',
-      email:            user.email ?? '',
-      phone:     user.phone ?? '',
-      birthdate:        user.birth_date ?? '',
-      country:          user.country ?? '',
+      first_name: user.first_name ?? '',
+      last_name: user.last_name ?? '',
+      email: user.email ?? '',
+      phone: user.phone ?? '',
+      birthdate: user.birth_date ?? '',
+      country: user.country ?? '',
       facebook_profile: user.facebook_profile ?? '',
     });
   }, [user]);
-
-
 
   // ── Field change ──────────────────────────────────────────────────────────
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
     // clear field-level error on change
-    if (errors[name]) setErrors((prev) => { const n = { ...prev }; delete n[name]; return n; });
+    if (errors[name])
+      setErrors((prev) => {
+        const n = { ...prev };
+        delete n[name];
+        return n;
+      });
   };
 
   // ── Build diff payload ────────────────────────────────────────────────────
@@ -82,20 +85,19 @@ export default function EditProfilePage() {
     const payload: Partial<UpdateUserPayload> = {};
     // Map UserProfileResponse fields → payload fields
     const orig = {
-      first_name:       user?.first_name ?? '',
-      last_name:        user?.last_name ?? '',
-      phone:     user?.phone ?? '',
-      birthdate:        user?.birth_date ?? '',
-      country:          user?.country ?? '',
+      first_name: user?.first_name ?? '',
+      last_name: user?.last_name ?? '',
+      phone: user?.phone ?? '',
+      birthdate: user?.birth_date ?? '',
+      country: user?.country ?? '',
       facebook_profile: user?.facebook_profile ?? '',
     };
 
-    if (formData.first_name       !== orig.first_name)       payload.first_name       = formData.first_name;
-    if (formData.last_name        !== orig.last_name)         payload.last_name        = formData.last_name;
-    if (formData.phone     !== orig.phone)      payload.phone     = formData.phone;
-    if (formData.birthdate        !== orig.birthdate)         payload.birthdate        = formData.birthdate;
-    if (formData.country          !== orig.country)           payload.country          = formData.country;
-
+    if (formData.first_name !== orig.first_name) payload.first_name = formData.first_name;
+    if (formData.last_name !== orig.last_name) payload.last_name = formData.last_name;
+    if (formData.phone !== orig.phone) payload.phone = formData.phone;
+    if (formData.birthdate !== orig.birthdate) payload.birthdate = formData.birthdate;
+    if (formData.country !== orig.country) payload.country = formData.country;
 
     return payload;
   };
@@ -132,13 +134,12 @@ export default function EditProfilePage() {
     }
   };
 
-  const initials   = (user?.username ?? user?.first_name ?? '?')[0].toUpperCase();
+  const initials = (user?.username ?? user?.first_name ?? '?')[0].toUpperCase();
 
   // ── Render ────────────────────────────────────────────────────────────────
   return (
     <div className="edit-profile-page">
       <div className="edit-profile-card">
-
         {/* ── Card header ── */}
         <div className="edit-profile-header">
           <button
@@ -162,10 +163,11 @@ export default function EditProfilePage() {
 
         {/* ── Form ── */}
         <form className="edit-profile-form" onSubmit={handleSubmit} noValidate>
-
           {/* Username — disabled */}
           <div className="form-field">
-            <label htmlFor="edit-username" className="field-label">Username</label>
+            <label htmlFor="edit-username" className="field-label">
+              Username
+            </label>
             <input
               id="edit-username"
               name="username"
@@ -213,11 +215,11 @@ export default function EditProfilePage() {
             {errors.last_name && <p className="field-error">{errors.last_name}</p>}
           </div>
 
-
-
           {/* Mobile phone */}
           <div className="form-field">
-            <label htmlFor="edit-phone" className="field-label">Mobile phone</label>
+            <label htmlFor="edit-phone" className="field-label">
+              Mobile phone
+            </label>
             <input
               id="edit-phone"
               name="phone"
@@ -233,7 +235,9 @@ export default function EditProfilePage() {
 
           {/* Birthdate */}
           <div className="form-field">
-            <label htmlFor="edit-birthdate" className="field-label">Birthdate</label>
+            <label htmlFor="edit-birthdate" className="field-label">
+              Birthdate
+            </label>
             <input
               id="edit-birthdate"
               name="birthdate"
@@ -247,7 +251,9 @@ export default function EditProfilePage() {
 
           {/* Country */}
           <div className="form-field">
-            <label htmlFor="edit-country" className="field-label">Country</label>
+            <label htmlFor="edit-country" className="field-label">
+              Country
+            </label>
             <input
               id="edit-country"
               name="country"
@@ -259,11 +265,9 @@ export default function EditProfilePage() {
             />
           </div>
 
-
-
           {/* Feedback messages */}
           {successMessage && <p className="form-success">{successMessage}</p>}
-          {errorMessage   && <p className="form-error-msg">{errorMessage}</p>}
+          {errorMessage && <p className="form-error-msg">{errorMessage}</p>}
 
           {/* ── Buttons ── */}
           <div className="form-actions">

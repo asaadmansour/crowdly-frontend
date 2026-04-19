@@ -4,7 +4,6 @@ import Home from './pages/Home';
 import ExplorePage from './pages/ExplorePage';
 import ProfilePage from './pages/ProfilePage';
 import EditProfilePage from './pages/EditProfilePage';
-
 import LoginPage from './pages/login-page/LoginPage.tsx';
 import GlobalSpinner from './components/GlobalSpinner.tsx';
 import { Toaster } from 'react-hot-toast';
@@ -22,7 +21,6 @@ import VerifyEmailToken from './pages/verfiy-email-token/VerfiyEmailToken.tsx';
 import PrivateRoute from './components/PrivateRoute.tsx';
 import GuestRoute from './components/GuestRoute.tsx';
 import Layout from './components/Layout';
-// import Explore from './pages/Explore';
 import Categories from './pages/Categories';
 import CategoryProjects from './pages/CategoryProjects';
 import SearchResults from './pages/SearchResults';

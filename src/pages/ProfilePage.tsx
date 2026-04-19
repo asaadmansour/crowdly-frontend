@@ -129,11 +129,7 @@ export default function ProfilePage() {
         {/* Avatar */}
         <div className="profile-avatar-wrap">
           {user?.profile_picture ? (
-            <img
-              src={user.profile_picture}
-              alt="Profile"
-              className="profile-avatar-img"
-            />
+            <img src={user.profile_picture} alt="Profile" className="profile-avatar-img" />
           ) : (
             <div className="profile-avatar-initials">{getInitials()}</div>
           )}
@@ -144,9 +140,7 @@ export default function ProfilePage() {
           <h1 className="profile-name">{user?.username ?? 'User'}</h1>
           <p className="profile-email">{user?.email}</p>
           {(user?.country || user?.phone) && (
-            <p className="profile-meta">
-              {[user.country, user.phone].filter(Boolean).join(' · ')}
-            </p>
+            <p className="profile-meta">{[user.country, user.phone].filter(Boolean).join(' · ')}</p>
           )}
           {user?.date_joined && (
             <p className="profile-since">{formatMemberSince(user.date_joined)}</p>
@@ -190,7 +184,9 @@ export default function ProfilePage() {
             role="tab"
             aria-selected={activeTab === 'donations'}
             className={`tab-btn ${activeTab === 'donations' ? 'tab-btn--active' : ''}`}
-            onClick={() => {setActiveTab('donations')}}
+            onClick={() => {
+              setActiveTab('donations');
+            }}
           >
             My Donations
           </button>

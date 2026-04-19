@@ -1,5 +1,12 @@
 import { NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, FolderTree, FileWarning, MessageSquareWarning, ReplyAll, LogOut } from 'lucide-react';
+import {
+  LayoutDashboard,
+  FolderTree,
+  FileWarning,
+  MessageSquareWarning,
+  ReplyAll,
+  LogOut,
+} from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useDispatch } from 'react-redux';
 import { removeToken } from '../../store/slices/authSlicer';
@@ -17,15 +24,27 @@ export default function Sidebar() {
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard size={20} />, exact: true },
     { name: 'Categories', path: '/admin/categories', icon: <FolderTree size={20} />, exact: false },
-<<<<<<< HEAD
-=======
     { name: 'Projects', path: '/admin/projects', icon: <FolderTree size={20} />, exact: false },
     { name: 'Users', path: '/admin/users', icon: <FolderTree size={20} />, exact: false },
     { name: 'Donations', path: '/admin/donations', icon: <FolderTree size={20} />, exact: false },
->>>>>>> 0ba62f8 (added stripe)
-    { name: 'Project Reports', path: '/admin/reports/projects', icon: <FileWarning size={20} />, exact: false },
-    { name: 'Comment Reports', path: '/admin/reports/comments', icon: <MessageSquareWarning size={20} />, exact: false },
-    { name: 'Reply Reports', path: '/admin/reports/replies', icon: <ReplyAll size={20} />, exact: false },
+    {
+      name: 'Project Reports',
+      path: '/admin/reports/projects',
+      icon: <FileWarning size={20} />,
+      exact: false,
+    },
+    {
+      name: 'Comment Reports',
+      path: '/admin/reports/comments',
+      icon: <MessageSquareWarning size={20} />,
+      exact: false,
+    },
+    {
+      name: 'Reply Reports',
+      path: '/admin/reports/replies',
+      icon: <ReplyAll size={20} />,
+      exact: false,
+    },
   ];
 
   return (
