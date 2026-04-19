@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getProjects, getCategories } from '../services/projects';
+import { getProjectImage, optimizeImage } from '../utils/image';
+
 import api from '../utils/api';
 import ProjectCard from '../components/ProjectCard';
 import LoadingSkeleton from '../components/LoadingSkeleton';
@@ -30,6 +32,8 @@ interface Project {
   donor_count?: number;
   owner?: string;
   images?: { image: string }[];
+  image?: string;
+  cover_image?: string;
 }
 
 // ── RatingPicker sub-component ─────────────────────────────────────────────
@@ -381,7 +385,7 @@ export default function ExplorePage() {
                 rating={project.average_rating ?? 0}
                 donor_count={project.donor_count ?? 0}
                 creator_name={project.owner ?? ''}
-                image={project.images?.[0]?.image}
+                image={optimizeImage(getProjectImage(project), 600)}
               />
             ))
           )}

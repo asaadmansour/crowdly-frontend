@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import toast from 'react-hot-toast';
-
+const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL;
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,11 +18,8 @@ export default function AdminLogin() {
 
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/auth/login/`,
-        { email, password }
-      );
-      
+      const response = await axios.post(`${BASE_URL}/auth/login/`, { email, password });
+
       const { access } = response.data;
       if (access) {
         localStorage.setItem('admin_token', access);

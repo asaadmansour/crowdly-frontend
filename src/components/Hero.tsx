@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { getFeaturedProjects } from '../services/projects';
+import { getProjectImage, optimizeImage } from '../utils/image';
+
 
 interface HeroProject {
   id: number;
@@ -11,6 +13,8 @@ interface HeroProject {
   average_rating?: number;
   category?: { name: string };
   images?: { image: string; image_url?: string }[];
+  image?: string;
+  cover_image?: string;
 }
 
 const ACCENT = ['#ff5600', '#ff7a2f', '#ffa366'];
@@ -82,7 +86,9 @@ export default function Hero() {
             </div>
           ) : (
             projects.map((p, i) => {
-              const img = p.images?.[0]?.image_url || p.images?.[0]?.image;
+              const rawImg = getProjectImage(p);
+              const img = i === 0 ? optimizeImage(rawImg, 1000) : optimizeImage(rawImg, 600);
+
               const progress = pct(p);
               const raised = Number(p.total_donated || 0);
               const donors = p.donor_count ?? 0;

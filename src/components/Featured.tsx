@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { SquareArrowUpRight } from 'lucide-react';
 import { useReveal } from '../hooks/useReveal';
 import { getFeaturedProjects } from '../services/projects';
+import { getProjectImage, optimizeImage } from '../utils/image';
+
 import { BarLoader } from 'react-spinners';
 import ProjectCard from './ProjectCard';
 import { HomeCardSkeleton } from './Favorites';
@@ -19,6 +21,8 @@ interface Project {
   donor_count?: number;
   creator?: string;
   images?: { image: string; image_url?: string }[];
+  image?: string;
+  cover_image?: string;
 }
 
 export default function Featured() {
@@ -84,7 +88,7 @@ export default function Featured() {
                   rating={p.average_rating ?? 0}
                   donor_count={p.donor_count ?? 0}
                   creator_name={p.creator ?? ''}
-                  image={p.images?.[0]?.image_url || p.images?.[0]?.image}
+                  image={optimizeImage(getProjectImage(p), 600)}
                 />
               </div>
             ))

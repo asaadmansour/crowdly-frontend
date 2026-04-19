@@ -4,6 +4,7 @@ import ImageSlider from '../components/ImageSlider.tsx';
 import ProjectCardDetails from '../components/ProjectCardDetails.tsx';
 import CreatorToolKit from '../components/CreatorToolKit.tsx';
 import CommunityFeed from '../components/CommunityFeed.tsx';
+import { getProjectImage, optimizeImage } from '../utils/image';
 import { Link, useNavigate, useParams } from 'react-router';
 import api from '../utils/api.js';
 import withLoading from '../utils/WithLoading.tsx';
@@ -74,11 +75,7 @@ function ProjectDetails() {
           similarDB.data?.results || similarDB.data?.result || similarDB.data || [];
         const similarArray = Array.isArray(fetchedSimilar) ? fetchedSimilar : [];
         const projectsWithImages = similarArray.map((proj: any) => {
-          const images = proj.images || proj.cover_images || [];
-          const sortedImages = [...images].sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
-          const coverImage = sortedImages.length > 0
-            ? sortedImages[0].image_url || sortedImages[0].image || null
-            : null;
+          const coverImage = optimizeImage(getProjectImage(proj), 400);
           return { ...proj, coverImage };
         });
 
@@ -123,7 +120,6 @@ function ProjectDetails() {
           {project.details}
         </p>
         <AuthorRow
-          image="https://i.pravatar.cc/150?img=11"
           name={project.owner}
           date={new Date(project.created_at).toLocaleDateString()}
           daysLeft={daysLeft}

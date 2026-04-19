@@ -1,15 +1,17 @@
+import UserAvatar from './UserAvatar';
+
 type AuthorRowProps = {
-  image: string;
+  image?: string;
   name: string;
   date: string;
   daysLeft: number;
 };
 
-function AuthorRow({ image, name, date, daysLeft }: AuthorRowProps) {
+function AuthorRow({ name, date, daysLeft }: AuthorRowProps) {
   return (
     <div className="flex items-center gap-6 mt-6">
       <div className="flex items-center gap-3">
-        <img src={image} className="w-10 h-10 rounded-full object-cover" />
+        <UserAvatar username={name} size="w-10 h-10" />
         <div className="flex flex-col">
           <span className="label-md text-[var(--color-text-secondary)]">Created By</span>
           <span className="font-semibold text-sm text-[var(--color-on-background)]">{name}</span>

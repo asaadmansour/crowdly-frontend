@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import api from '../utils/api.js';
 import withLoading from '../utils/WithLoading.tsx';
+import UserAvatar from './UserAvatar';
+
 
 type Comment = {
   id: number;
@@ -19,6 +21,7 @@ type CommunityFeedProps = {
 };
 
 const BASE_URL = import.meta.env.VITE_BASE_BACKEND_URL;
+
 
 function CommunityFeed({ projectId, onInteraction }: CommunityFeedProps) {
   const user = useSelector((state: any) => state.auth.user);
@@ -174,12 +177,9 @@ function CommunityFeed({ projectId, onInteraction }: CommunityFeedProps) {
       <h3 className="headline-md mt-8">Community Feed</h3>
       <div className="mt-4 border border-[var(--color-outline-variant)] rounded-lg p-4">
         <div className="flex gap-3 items-start">
-          <img
-            src="https://i.pravatar.cc/150?img=11"
-            className="w-9 h-9 rounded-full object-cover"
-            alt="Current User Profile"
-          />
+          <UserAvatar username={user?.username} />
           <div className="flex-1">
+
             <p className="label-md text-[var(--color-text-secondary)] mb-2">
               Commenting as {user?.username || 'Loading...'}
             </p>
@@ -207,12 +207,9 @@ function CommunityFeed({ projectId, onInteraction }: CommunityFeedProps) {
                 {/* Main Comment */}
                 <div className="flex gap-3 items-start justify-between">
                   <div className="flex gap-3 items-start">
-                    <img
-                      src="https://i.pravatar.cc/150?img=22"
-                      className="w-9 h-9 rounded-full object-cover"
-                      alt="Author Profile"
-                    />
+                    <UserAvatar username={c.author.username} />
                     <div>
+
                       <span className="font-semibold text-sm">{c.author.username}</span>
                       {editingCommentId === c.id ? (
                         <div className="mt-1 flex gap-2 items-center">
@@ -308,12 +305,9 @@ function CommunityFeed({ projectId, onInteraction }: CommunityFeedProps) {
                 {activeReplyId === c.id ? (
                   <div className="ml-12 mt-3">
                     <div className="flex gap-2 items-start">
-                      <img
-                        src="https://i.pravatar.cc/150?img=11"
-                        className="w-7 h-7 rounded-full object-cover mt-1"
-                        alt="Current User"
-                      />
+                      <UserAvatar username={user?.username} size="w-7 h-7" />
                       <div className="flex-1">
+
                         <textarea
                           rows={2}
                           value={reply}
@@ -339,12 +333,9 @@ function CommunityFeed({ projectId, onInteraction }: CommunityFeedProps) {
                   {repliesMap[c.id] &&
                     repliesMap[c.id].map((r: any) => (
                       <div key={r.id} className="flex gap-2 items-start">
-                        <img
-                          src={r.author.profile_picture || 'https://i.pravatar.cc/150?img=33'}
-                          className="w-7 h-7 rounded-full object-cover mt-1"
-                          alt="Reply Author Profile"
-                        />
+                        <UserAvatar username={r.author.username} size="w-7 h-7" />
                         <div className="bg-[var(--color-surface-low)] rounded-lg px-3 py-2 flex-1">
+
                           <div className="flex items-center gap-2">
                             <span className="font-semibold text-xs">{r.author.username}</span>
                             <span className="label-md text-[var(--color-text-secondary)]">
